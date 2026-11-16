@@ -10,7 +10,7 @@ import pdfplumber
 
 # --- PAGE CONFIGURATION ---
 st.set_page_config(
-    page_title="MUViseu Circulares - Linhas C1 e C2",
+    page_title="MUViseu Circulares - Horários Linhas C1 e C2",
     page_icon="🚌",
     layout="wide"
 )
@@ -193,6 +193,15 @@ else:
     if "dep_fim_c2" not in st.session_state: st.session_state["dep_fim_c2"] = DEFAULT_DEPARTURES_FINS_SEMANA
     if "favorites" not in st.session_state: st.session_state["favorites"] = []
 
+# --- CALLBACK FUNCTIONS FOR FAVORITES ---
+def set_favorite_route(orig_val, dest_val):
+    st.session_state["sel_origem"] = orig_val
+    st.session_state["sel_destino"] = dest_val
+
+def delete_favorite_route(idx):
+    st.session_state["favorites"].pop(idx)
+    save_persisted_data()
+
 # --- PARSER FUNCTION FOR PDF UPLOAD ---
 def parse_pdf_schedules(pdf_file):
     parsed_line = None
@@ -304,7 +313,7 @@ def create_pdf_report(line_code, tipo_dia, orig_stop, dest_stop, trips):
     pdf = FPDF()
     pdf.add_page()
     pdf.set_font("Helvetica", "B", 16)
-    pdf.cell(0, 10, f"MUV Viseu - Consulta de Horarios ({line_code})", ln=True, align="C")
+    pdf.cell(0, 10, f"MUViseu Circulares - Consulta de Horarios ({line_code})", ln=True, align="C")
     pdf.set_font("Helvetica", "", 11)
     pdf.ln(5)
     
@@ -340,7 +349,7 @@ def create_ics_calendar(line_code, orig_stop, dest_stop, trip_time_str, dest_tim
     
     ics_content = f"""BEGIN:VCALENDAR
 VERSION:2.0
-PRODID:-//MUV Viseu//Horarios Bus//PT
+PRODID:-//MUViseu Circulares//Horarios Bus//PT
 BEGIN:VEVENT
 SUMMARY:Autocarro MUV {line_code}: {orig_stop} -> {dest_stop}
 DESCRIPTION:Viagem de autocarro MUV Viseu da {line_code}.\\nPartida: {trip_time_str}\\nChegada: {dest_time_str}
@@ -352,7 +361,7 @@ END:VCALENDAR"""
     return ics_content.encode("utf-8")
 
 # --- USER INTERFACE ---
-st.title("🚌 MUViseu Circulares (v5 - Versão Inteligente)")
+st.title("🚌 MUViseu Circulares")
 st.markdown("Aplicação interativa em Python e Streamlit com **Comparador Inteligente C1 vs C2**, **Gestor de Favoritos**, **mapa PyDeck**, **PDF upload**, e **exportação .ICS/PDF/CSV**.")
 
 # Sidebar Settings
@@ -374,20 +383,13 @@ if modo_linha == "Linha C1":
 elif modo_linha == "Linha C2":
     available_stops = stops_c2_names
 else:
-    # Union of all stop names preserving order
     all_stops = list(dict.fromkeys(stops_c1_names + stops_c2_names))
     available_stops = all_stops
 
-# Handle Favorite selection trigger
-if "sel_origem" not in st.session_state:
+# Handle initial default selections in session_state if not set
+if "sel_origem" not in st.session_state or st.session_state["sel_origem"] not in available_stops:
     st.session_state["sel_origem"] = available_stops[0]
-if "sel_destino" not in st.session_state:
-    st.session_state["sel_destino"] = available_stops[min(13, len(available_stops)-1)]
-
-# Ensure selections are valid within available_stops
-if st.session_state["sel_origem"] not in available_stops:
-    st.session_state["sel_origem"] = available_stops[0]
-if st.session_state["sel_destino"] not in available_stops:
+if "sel_destino" not in st.session_state or st.session_state["sel_destino"] not in available_stops:
     st.session_state["sel_destino"] = available_stops[min(13, len(available_stops)-1)]
 
 origem = st.sidebar.selectbox("Paragem de Origem", available_stops, key="sel_origem")
@@ -419,15 +421,19 @@ if st.session_state["favorites"]:
     for idx, fav in enumerate(st.session_state["favorites"]):
         col_f1, col_f2 = st.sidebar.columns([4, 1])
         with col_f1:
-            if st.button(f"📌 {fav['origem']} ➔ {fav['destino']}", key=f"fav_btn_{idx}"):
-                st.session_state["sel_origem"] = fav["origem"]
-                st.session_state["sel_destino"] = fav["destino"]
-                st.rerun()
+            st.button(
+                f"📌 {fav['origem']} ➔ {fav['destino']}", 
+                key=f"fav_btn_{idx}",
+                on_click=set_favorite_route,
+                args=(fav["origem"], fav["destino"])
+            )
         with col_f2:
-            if st.button("❌", key=f"fav_del_{idx}"):
-                st.session_state["favorites"].pop(idx)
-                save_persisted_data()
-                st.rerun()
+            st.button(
+                "❌", 
+                key=f"fav_del_{idx}",
+                on_click=delete_favorite_route,
+                args=(idx,)
+            )
 else:
     st.sidebar.info("Nenhum percurso favorito guardado.")
 
@@ -485,7 +491,6 @@ with tab_consultar:
     if origem == destino:
         st.warning("⚠️ A paragem de origem e de destino são idênticas. Selecione paragens diferentes.")
     else:
-        # Check trips for C1 and C2
         trips_c1, valid_c1 = calculate_next_trips("C1", tipo_dia, origem, destino, horario_desejado, n_horarios)
         trips_c2, valid_c2 = calculate_next_trips("C2", tipo_dia, origem, destino, horario_desejado, n_horarios)
 
@@ -498,7 +503,6 @@ with tab_consultar:
                 best_line = None
                 time_saved = 0
                 
-                # Determine arrival times for comparison
                 arr_c1 = trips_c1[0]["Chegada TD"] if trips_c1 else None
                 arr_c2 = trips_c2[0]["Chegada TD"] if trips_c2 else None
                 
@@ -517,7 +521,6 @@ with tab_consultar:
                 elif arr_c2:
                     best_line = "C2"
 
-                # Recommendation Banner
                 if best_line in ["C1", "C2"]:
                     rec_trip = trips_c1[0] if best_line == "C1" else trips_c2[0]
                     saved_msg = f" — chega {time_saved} minuto(s) mais cedo!" if time_saved > 0 else "!"
@@ -528,7 +531,6 @@ with tab_consultar:
                 elif best_line == "Empate":
                     st.info("🤝 **EMPATE:** Ambas as linhas C1 e C2 chegam ao destino exatamente no mesmo horário!")
 
-                # Side by side view for C1 and C2
                 col_c1, col_c2 = st.columns(2)
 
                 with col_c1:
@@ -548,7 +550,6 @@ with tab_consultar:
                         st.warning("Sem rotas na C2 para estas paragens.")
 
         else:
-            # Single Line Mode (C1 or C2)
             active_line = "C1" if modo_linha == "Linha C1" else "C2"
             trips = trips_c1 if active_line == "C1" else trips_c2
 
@@ -570,7 +571,6 @@ with tab_consultar:
                 st.markdown(f"### 📋 Próximos {len(trips)} Horários - Linha {active_line}")
                 st.dataframe(df_trips[["Partida da Origem", "Chegada ao Destino", "Tempo Restante", "Duração Estimada", "Saída Terminal"]], use_container_width=True)
 
-                # Export Section
                 st.markdown("#### 📥 Exportação de Resultados & Lembretes")
                 exp_col1, exp_col2, exp_col3 = st.columns(3)
 
@@ -619,13 +619,13 @@ with tab_mapa:
         path_coords.append([s_lon, s_lat])
         
         if s_name == origem:
-            color = [0, 200, 80, 220]    # Green for origin
+            color = [0, 200, 80, 220]
             radius = 120
         elif s_name == destino:
-            color = [230, 40, 40, 220]   # Red for destination
+            color = [230, 40, 40, 220]
             radius = 120
         else:
-            color = [30, 120, 220, 160]  # Blue for other stops
+            color = [30, 120, 220, 160]
             radius = 65
             
         map_data.append({
@@ -690,4 +690,4 @@ with tab_detalhes:
                 st.write(f"• **Partida do Terminal:** {trip['Saída Terminal']}")
 
 st.markdown("---")
-st.caption("MUV Viseu App v5 Inteligente - Sistema de Horários & Mobilidade Urbana de Viseu.")
+st.caption("MUViseu Circulares App - Sistema de Horários & Mobilidade Urbana de Viseu.")
