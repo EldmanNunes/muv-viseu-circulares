@@ -20,7 +20,10 @@ st.set_page_config(
 # --- CACHE / PERSISTENCE FILE ---
 CACHE_FILE = "custom_schedules.json"
 
-# --- DEFAULT DATA ---
+# --- DEFAULT DATA (OFFICIAL LATEST: 1 DE MARÇO DE 2026) ---
+DEFAULT_VERSION_DATE = "2026-03-01"
+DEFAULT_VERSION_LABEL = "1 de Março de 2026"
+
 DEFAULT_DEPARTURES_DIAS_UTEIS = [
     "06:30", "06:50", "07:10", "07:30", "07:50", "08:10", "08:30", "08:50",
     "09:10", "09:30", "09:50", "10:10", "10:30", "10:50", "11:10", "11:30",
@@ -291,7 +294,9 @@ def save_persisted_data():
         "dep_sab_c1": st.session_state.get("dep_sab_c1", DEFAULT_DEPARTURES_SABADOS),
         "dep_dias_c2": st.session_state.get("dep_dias_c2", DEFAULT_DEPARTURES_DIAS_UTEIS),
         "dep_sab_c2": st.session_state.get("dep_sab_c2", DEFAULT_DEPARTURES_SABADOS),
-        "favorites": st.session_state.get("favorites", [])
+        "favorites": st.session_state.get("favorites", []),
+        "version_date": st.session_state.get("version_date", DEFAULT_VERSION_DATE),
+        "version_label": st.session_state.get("version_label", DEFAULT_VERSION_LABEL),
     }
     with open(CACHE_FILE, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
@@ -306,6 +311,8 @@ if cached:
     if "dep_dias_c2" not in st.session_state: st.session_state["dep_dias_c2"] = cached.get("dep_dias_c2", DEFAULT_DEPARTURES_DIAS_UTEIS)
     if "dep_sab_c2" not in st.session_state: st.session_state["dep_sab_c2"] = cached.get("dep_sab_c2", DEFAULT_DEPARTURES_SABADOS)
     if "favorites" not in st.session_state: st.session_state["favorites"] = cached.get("favorites", [])
+    if "version_date" not in st.session_state: st.session_state["version_date"] = cached.get("version_date", DEFAULT_VERSION_DATE)
+    if "version_label" not in st.session_state: st.session_state["version_label"] = cached.get("version_label", DEFAULT_VERSION_LABEL)
 else:
     if "stops_c1" not in st.session_state: st.session_state["stops_c1"] = DEFAULT_STOPS_C1
     if "stops_c2" not in st.session_state: st.session_state["stops_c2"] = DEFAULT_STOPS_C2
@@ -316,8 +323,32 @@ else:
     if "dep_sab_c2" not in st.session_state: st.session_state["dep_sab_c2"] = DEFAULT_DEPARTURES_SABADOS
     if "dep_dom_c2" not in st.session_state: st.session_state["dep_dom_c2"] = DEFAULT_DEPARTURES_DOMINGOS
     if "favorites" not in st.session_state: st.session_state["favorites"] = []
+    if "version_date" not in st.session_state: st.session_state["version_date"] = DEFAULT_VERSION_DATE
+    if "version_label" not in st.session_state: st.session_state["version_label"] = DEFAULT_VERSION_LABEL
 
 # --- PARSER FUNCTION FOR PDF UPLOAD ---
+MONTH_MAP = {
+    'janeiro': 1, 'fevereiro': 2, 'março': 3, 'marco': 3, 'abril': 4,
+    'maio': 5, 'junho': 6, 'julho': 7, 'agosto': 8, 'setembro': 9,
+    'outubro': 10, 'novembro': 11, 'dezembro': 12
+}
+
+def extract_version_date_from_text(text):
+    match = re.search(r'EM\s+VIGOR\s+A\s+PARTIR\s+DE\s+(\d{1,2})\s+DE\s+([A-Za-zçãõÇÃÕ]+)\s+DE\s+(\d{4})', text, re.IGNORECASE)
+    if match:
+        day = int(match.group(1))
+        month_str = match.group(2).lower()
+        year = int(match.group(3))
+        month = MONTH_MAP.get(month_str, 3)
+        return date(year, month, day), f"{day} de {month_str.capitalize()} de {year}"
+    
+    match_iso = re.search(r'(\d{4})-(\d{2})-(\d{2})', text)
+    if match_iso:
+        y, m, d = map(int, match_iso.groups())
+        return date(y, m, d), f"{d}/{m}/{y}"
+        
+    return date(2026, 3, 1), "1 de Março de 2026"
+
 def parse_pdf_schedules(pdf_file):
     parsed_line = None
     parsed_stops = []
@@ -351,7 +382,8 @@ def parse_pdf_schedules(pdf_file):
             if len(unique_times) >= 5:
                 parsed_departures = unique_times
 
-    return parsed_line, parsed_stops, parsed_departures
+    pdf_date_obj, pdf_date_label = extract_version_date_from_text(full_text)
+    return parsed_line, parsed_stops, parsed_departures, pdf_date_obj, pdf_date_label
 
 # --- HELPER FUNCTIONS ---
 def str_to_time_delta(time_str: str) -> timedelta:
@@ -486,11 +518,14 @@ END:VCALENDAR"""
     return ics_content.encode("utf-8")
 
 # --- USER INTERFACE ---
-st.title("🚌 Consultor de Horários MUV Viseu (v10 - Com Mapa Interativo Detalhado)")
+st.title("🚌 MUViseu Circulares")
+st.info(f"📅 **Versão dos Horários em Vigor:** {st.session_state.get('version_label', '1 de Março de 2026')} *(Fonte Oficial MUV)*")
+
 st.markdown("Aplicação interativa em Python e Streamlit com **Comparador Inteligente C1 vs C2**, **Gestor de Favoritos**, **mapa PyDeck**, **PDF upload**, e **exportação .ICS/PDF/CSV**.")
 
 # Sidebar Settings
 st.sidebar.header("⚙️ Parâmetros da Viagem")
+st.sidebar.markdown(f"🗓️ **Versão ativa:** `{st.session_state.get('version_label', '1 de Março de 2026')}`")
 
 modo_linha = st.sidebar.radio(
     "Escolha a Linha",
@@ -571,27 +606,53 @@ st.sidebar.header("📂 Atualizar Dados por PDF")
 uploaded_pdf = st.sidebar.file_uploader("Carregar PDF de Horários", type=["pdf"])
 
 if uploaded_pdf is not None:
-    line_parsed, new_stops, new_deps = parse_pdf_schedules(uploaded_pdf)
+    line_parsed, new_stops, new_deps, pdf_date_obj, pdf_date_label = parse_pdf_schedules(uploaded_pdf)
     target_line = line_parsed if line_parsed else ("C1" if modo_linha != "Linha C2" else "C2")
     
-    with st.sidebar.expander("🔍 Pré-visualização dos Dados Extraídos", expanded=True):
+    curr_date_str = st.session_state.get("version_date", DEFAULT_VERSION_DATE)
+    try:
+        cy, cm, cd = map(int, curr_date_str.split("-"))
+        curr_date_obj = date(cy, cm, cd)
+    except Exception:
+        curr_date_obj = date(2026, 3, 1)
+
+    is_newer = pdf_date_obj > curr_date_obj
+    is_same = pdf_date_obj == curr_date_obj
+    is_older = pdf_date_obj < curr_date_obj
+
+    with st.sidebar.expander("🔍 Pré-visualização e Validação do PDF", expanded=True):
         st.write(f"**Linha Identificada:** {target_line}")
+        st.write(f"**Data no PDF:** `{pdf_date_label}`")
+        st.write(f"**Data em Vigor na App:** `{st.session_state['version_label']}`")
+        
+        if is_older:
+            st.error(f"⛔ **PDF Desatualizado!** Os horários deste PDF ({pdf_date_label}) são anteriores à versão em vigor ({st.session_state['version_label']}).")
+        elif is_same:
+            st.info(f"ℹ️ **Mesma Versão:** O PDF tem a mesma data da versão ativa ({pdf_date_label}).")
+        else:
+            st.success(f"🚀 **PDF Mais Recente!** Esta versão ({pdf_date_label}) irá atualizar a app.")
+
         st.write(f"**Paragens Detetadas:** {len(new_stops)}")
         st.write(f"**Horários Detetados:** {len(new_deps)}")
-        if new_deps:
-            st.caption(f"Exemplos de Horários: {', '.join(new_deps[:5])}...")
 
-    if st.sidebar.button("✅ Confirmar e Importar PDF"):
-        if new_stops:
-            if target_line == "C1": st.session_state["stops_c1"] = new_stops
-            else: st.session_state["stops_c2"] = new_stops
-        if new_deps:
-            if tipo_dia == "Dias Úteis":
-                st.session_state[f"dep_dias_{target_line.lower()}"] = new_deps
-            else:
-                st.session_state[f"dep_fim_{target_line.lower()}"] = new_deps
-        save_persisted_data()
-        st.sidebar.success(f"✅ Dados guardados permanentemente para a Linha {target_line}!")
+    if is_older:
+        st.sidebar.warning("⚠️ Importação bloqueada para proteger a versão mais recente em vigor.")
+    else:
+        if st.sidebar.button("✅ Confirmar e Importar PDF"):
+            if new_stops:
+                if target_line == "C1": st.session_state["stops_c1"] = new_stops
+                else: st.session_state["stops_c2"] = new_stops
+            if new_deps:
+                if tipo_dia == "Dias Úteis": st.session_state[f"dep_dias_{target_line.lower()}"] = new_deps
+                elif tipo_dia == "Sábados": st.session_state[f"dep_sab_{target_line.lower()}"] = new_deps
+                else: st.session_state[f"dep_dom_{target_line.lower()}"] = new_deps
+            
+            st.session_state["version_date"] = str(pdf_date_obj)
+            st.session_state["version_label"] = pdf_date_label
+            save_persisted_data()
+            st.sidebar.success(f"✅ Dados guardados! Versão ativa: {pdf_date_label}")
+            st.rerun()
+
 
 if st.sidebar.button("🔄 Restaurar Dados Oficiais Padrão"):
     st.session_state["stops_c1"] = DEFAULT_STOPS_C1
@@ -603,7 +664,11 @@ if st.sidebar.button("🔄 Restaurar Dados Oficiais Padrão"):
     st.session_state["favorites"] = []
     if os.path.exists(CACHE_FILE):
         os.remove(CACHE_FILE)
-    st.sidebar.info("Dados restaurados para a versão oficial MUV Set/2025.")
+st.session_state["version_date"] = DEFAULT_VERSION_DATE
+st.session_state["version_label"] = DEFAULT_VERSION_LABEL
+st.sidebar.info("Dados restaurados para a versão oficial MUV mais recente em vigor: 1 de Março de 2026.")
+st.rerun()
+
 
 # Main Output Layout with Tabs
 tab_consultar, tab_mapa, tab_detalhes = st.tabs([
@@ -787,15 +852,15 @@ with tab_mapa:
             "&copy; OpenStreetMap contributors"
         ),
         "🏙️ CartoDB Voyager (Claro & Detalhado)": (
-            proto_str + "{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
+            proto_str + "a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png",
             "&copy; OpenStreetMap &copy; CARTO"
         ),
         "🏢 CartoDB Positron (Claro Minimalista)": (
-            proto_str + "{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+            proto_str + "a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png",
             "&copy; OpenStreetMap &copy; CARTO"
         ),
         "🌙 CartoDB Dark (Modo Noturno)": (
-            proto_str + "{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+            proto_str + "a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png",
             "&copy; OpenStreetMap &copy; CARTO"
         )
     }
@@ -894,4 +959,4 @@ with tab_detalhes:
                 st.write(f"• **Partida do Terminal:** {trip['Saída Terminal']}")
 
 st.markdown("---")
-st.caption("MUV Viseu App v10 - MUViseu Circulares - Sistema de Horários & Mobilidade Urbana de Viseu.")
+st.caption("MUViseu Circulares v13 - Sistema Inteligente de Horários & Mobilidade Urbana de Viseu.")
