@@ -811,7 +811,7 @@ with tab_mapa:
         tooltip=f"Circuito da Linha {target_map_line}"
     ).add_to(m)
 
-    st_html(m.get_root().render(), height=520, key=f'map_folium_{target_map_line}_{chosen_tile.replace(" ", "_")}')
+    st_html(m.get_root().render(), height=520)
     st.caption("🟢 Verde: Paragem de Origem | 🔴 Vermelho: Paragem de Destino | 🔵 Azul: Paragens da Linha | ➖ Linha azul: Rota do circuito")
 
 
