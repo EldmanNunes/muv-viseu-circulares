@@ -372,6 +372,30 @@ def format_timedelta(td: timedelta) -> str:
     minutes = (total_seconds % 3600) // 60
     return f"{hours:02d}:{minutes:02d}"
 
+def has_suspicious_departure_intervals(departures):
+    """Deteta listas provavelmente contaminadas com horas de passagem intermédias."""
+    parsed = []
+    for value in departures:
+        try:
+            td = str_to_time_delta(value)
+        except (TypeError, ValueError):
+            continue
+        if timedelta(0) <= td < timedelta(days=1):
+            parsed.append(td)
+
+    parsed = sorted(set(parsed))
+    if len(parsed) < 6:
+        return False
+
+    gaps = [
+        int((current - previous).total_seconds() // 60)
+        for previous, current in zip(parsed, parsed[1:])
+    ]
+    one_minute_gaps = sum(gap <= 1 for gap in gaps)
+    # Só bloqueia padrões claramente anómalos; não altera horários silenciosamente.
+    return one_minute_gaps >= 4 and one_minute_gaps / len(gaps) >= 0.30
+
+
 def calculate_next_trips(line_code, tipo_dia, orig_stop, dest_stop, ref_time_obj, n_results):
     stops_list = st.session_state["stops_c1"] if line_code == "C1" else st.session_state["stops_c2"]
     
@@ -389,6 +413,9 @@ def calculate_next_trips(line_code, tipo_dia, orig_stop, dest_stop, ref_time_obj
             departures_base = st.session_state["dep_sab_c2"]
         else:
             departures_base = st.session_state["dep_dom_c2"]
+
+    if has_suspicious_departure_intervals(departures_base):
+        return [], False
 
     stop_dict = {name: offset for name, offset, lat, lon in stops_list}
     if orig_stop not in stop_dict or dest_stop not in stop_dict:
@@ -711,6 +738,14 @@ with tab_consultar:
         # Check trips for C1 and C2
         trips_c1, valid_c1 = calculate_next_trips("C1", tipo_dia, origem, destino, horario_desejado, n_horarios)
         trips_c2, valid_c2 = calculate_next_trips("C2", tipo_dia, origem, destino, horario_desejado, n_horarios)
+
+        if not valid_c1 or not valid_c2:
+            st.warning(
+                "⚠️ Foram detetados dados de horários inválidos ou com intervalos anormalmente curtos "
+                "(possível mistura de partidas com horas de passagem nas paragens). "
+                "Os resultados afetados foram bloqueados para evitar apresentar partidas falsas. "
+                "Verifique os horários guardados ou use «Restaurar Dados Oficiais Padrão» na barra lateral."
+            )
 
         if modo_linha == "⚡ Comparar C1 e C2 (Mais Rápida)":
             st.markdown("### ⚡ Comparador Inteligente: C1 vs C2")
