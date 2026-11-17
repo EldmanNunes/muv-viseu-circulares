@@ -44,124 +44,123 @@ DEFAULT_DEPARTURES_DOMINGOS = [
 ]
 
 DEFAULT_STOPS_C1 = [
-    ("Interface Hospital", 0, 40.6582, -7.9065),
-    ("Rei D Duarte-Hospital 1", 1, 40.6575, -7.9080),
-    ("Quinta D´el Rei", 2, 40.6560, -7.9090),
-    ("Dr A Alves-C Comercial 1", 3, 40.6545, -7.9105),
-    ("Quinta do Galo 2", 4, 40.6530, -7.9120),
-    ("Quinta de Jugueiros", 5, 40.6515, -7.9135),
-    ("Residências IPV", 6, 40.6495, -7.9150),
-    ("Rua Nova", 7, 40.6480, -7.9160),
-    ("Cidade Politécnica-IPV", 8, 40.6465, -7.9170),
-    ("Reg Infantaria-IPV 1", 9, 40.6485, -7.9180),
-    ("Reg Infantaria-IPV 2", 10, 40.6500, -7.9185),
-    ("Paulo VI-25 Abril", 11, 40.6520, -7.9150),
-    ("25 Abril-Liceu 2", 12, 40.6540, -7.9130),
-    ("Rossio 2", 13, 40.6568, -7.9128),
-    ("Alberto Sampaio 1", 14, 40.6580, -7.9110),
-    ("Alberto Sampaio 2", 15, 40.6590, -7.9095),
-    ("N. S. Fátima-Igreja", 16, 40.6605, -7.9080),
-    ("J Maria Escrivá-Hotel 2", 17, 40.6620, -7.9070),
-    ("José Maria Escrivá 2", 18, 40.6635, -7.9060),
-    ("Monte Belo-J Infância 1", 19, 40.6650, -7.9050),
-    ("Monte Belo-Estádio 1", 20, 40.6665, -7.9040),
-    ("Campo dos Trambelos", 21, 40.6680, -7.9030),
-    ("Balsa 1", 22, 40.6690, -7.9020),
-    ("César Anjo 1", 23, 40.6700, -7.9010),
-    ("Bombeiros Voluntários", 24, 40.6685, -7.9080),
-    ("COMV 1", 25, 40.6670, -7.9120),
-    ("Fonte Cibernética 2", 26, 40.6660, -7.9150),
-    ("Av Europa-Tribunal 2", 27, 40.6650, -7.9180),
-    ("M Ferreira Figueiredo 1", 30, 40.6680, -7.9220),
-    ("Pedro Henriques 1", 31, 40.6700, -7.9240),
-    ("Escola Viriato 2", 33, 40.6720, -7.9260),
-    ("Estrada Velha Abraveses", 35, 40.6740, -7.9280),
-    ("Cava de Viriato 2", 37, 40.6650, -7.9130),
-    ("Feira de S. Mateus 2", 38, 40.6620, -7.9135),
-    ("Porta dos Cavaleiros 1", 39, 40.6595, -7.9125),
-    ("Mouzinho de Albuquerque", 40, 40.6580, -7.9140),
-    ("Capitão Silva Pereira", 41, 40.6570, -7.9155),
-    ("Cap S Pereira-S Cristina", 42, 40.6560, -7.9165),
-    ("5 de Outubro 1", 43, 40.6550, -7.9150),
-    ("Rua Seminário", 44, 40.6540, -7.9135),
-    ("Dr Azeredo Perdigão 1", 45, 40.6550, -7.9120),
-    ("General Humberto Delgado", 46, 40.6560, -7.9125),
-    ("Rossio 1", 48, 40.6568, -7.9128),
-    ("25 Abril-Liceu 1", 50, 40.6540, -7.9130),
-    ("Nuno Alvares Pereira", 51, 40.6525, -7.9140),
-    ("Escola João de Barros 1", 52, 40.6510, -7.9130),
-    ("Manuel Silva Almeida 1", 53, 40.6500, -7.9120),
-    ("Paulo VI-25 Abril (Regresso)", 54, 40.6520, -7.9150),
-    ("Escola Grão Vasco", 55, 40.6535, -7.9110),
-    ("Alexandre Lucena e Vale", 56, 40.6550, -7.9090),
-    ("10 de Junho-Cemitério 1", 57, 40.6565, -7.9075),
-    ("Rei D Duarte-Mesuras", 58, 40.6575, -7.9070),
-    ("Hospital S Teotónio", 58, 40.6580, -7.9068),
-    ("Interface Hospital (Chegada)", 60, 40.6582, -7.9065)
+    ('Interface Hospital', 0, 40.6582, -7.9065),
+    ('Rei D Duarte-Hospital 1', 1, 40.6575, -7.908),
+    ('Quinta D´el Rei', 2, 40.656, -7.909),
+    ('Dr A Alves-C Comercial 1', 3, 40.6545, -7.9105),
+    ('Quinta do Galo 2', 4, 40.653, -7.912),
+    ('Quinta de Jugueiros', 5, 40.6515, -7.9135),
+    ('Residências IPV', 6, 40.6495, -7.915),
+    ('Rua Nova', 7, 40.648, -7.916),
+    ('Cidade Politécnica-IPV', 8, 40.6465, -7.917),
+    ('Reg Infantaria-IPV 1', 9, 40.6485, -7.918),
+    ('Reg Infantaria-IPV 2', 10, 40.65, -7.9185),
+    ('Paulo VI-25 Abril', 11, 40.652, -7.915),
+    ('25 Abril-Liceu 2', 12, 40.654, -7.913),
+    ('Rossio 2', 13, 40.6568, -7.9128),
+    ('Alberto Sampaio 1', 14, 40.658, -7.911),
+    ('Alberto Sampaio 2', 15, 40.659, -7.9095),
+    ('N. S. Fátima-Igreja', 16, 40.6605, -7.908),
+    ('J Maria Escrivá-Hotel 2', 17, 40.662, -7.907),
+    ('José Maria Escrivá 2', 18, 40.6635, -7.906),
+    ('Monte Belo-J Infância 1', 19, 40.665, -7.905),
+    ('Monte Belo-Estádio 1', 20, 40.6665, -7.904),
+    ('Campo dos Trambelos', 21, 40.668, -7.903),
+    ('Balsa 1', 22, 40.669, -7.902),
+    ('César Anjo 1', 23, 40.67, -7.901),
+    ('Bombeiros Voluntários', 24, 40.6685, -7.908),
+    ('COMV 1', 25, 40.667, -7.912),
+    ('Fonte Cibernética 2', 26, 40.666, -7.915),
+    ('Av Europa-Tribunal 2', 27, 40.665, -7.918),
+    ('M Ferreira Figueiredo 1', 30, 40.668, -7.922),
+    ('Pedro Henriques 1', 31, 40.67, -7.924),
+    ('Escola Viriato 2', 33, 40.672, -7.926),
+    ('Estrada Velha Abraveses', 35, 40.674, -7.928),
+    ('Cava de Viriato 2', 37, 40.665, -7.913),
+    ('Feira de S. Mateus 2', 38, 40.662, -7.9135),
+    ('Porta dos Cavaleiros 1', 39, 40.6595, -7.9125),
+    ('Mouzinho de Albuquerque', 40, 40.658, -7.914),
+    ('Capitão Silva Pereira', 41, 40.657, -7.9155),
+    ('Cap S Pereira-S Cristina', 42, 40.656, -7.9165),
+    ('5 de Outubro 1', 43, 40.655, -7.915),
+    ('Rua Seminário', 44, 40.654, -7.9135),
+    ('Dr Azeredo Perdigão 1', 45, 40.655, -7.912),
+    ('General Humberto Delgado', 46, 40.656, -7.9125),
+    ('Rossio 1', 48, 40.657, -7.9126),
+    ('25 Abril-Liceu 1', 50, 40.6542, -7.9128),
+    ('Nuno Alvares Pereira', 51, 40.6525, -7.914),
+    ('Escola João de Barros 1', 52, 40.651, -7.913),
+    ('Manuel Silva Almeida 1', 53, 40.65, -7.912),
+    ('Paulo VI-25 Abril (Regresso)', 54, 40.6522, -7.9148),
+    ('Escola Grão Vasco', 55, 40.6535, -7.911),
+    ('Alexandre Lucena e Vale', 56, 40.655, -7.909),
+    ('10 de Junho-Cemitério 1', 57, 40.6565, -7.9075),
+    ('Rei D Duarte-Mesuras', 58, 40.6575, -7.907),
+    ('Hospital S Teotónio', 58, 40.658, -7.9068),
+    ('Interface Hospital (Chegada)', 60, 40.6584, -7.9063)
 ]
 
 DEFAULT_STOPS_C2 = [
-    ("Interface Hospital", 0, 40.6582, -7.9065),
-    ("Biblioteca-Loja Cidadão", 1, 40.6570, -7.9080),
-    ("10 de Junho-Cemitério 2", 2, 40.6565, -7.9075),
-    ("Rua Mendonça", 3, 40.6550, -7.9090),
-    ("Escola Grão Vasco", 3, 40.6535, -7.9110),
-    ("Praça de Goa", 4, 40.6520, -7.9120),
-    ("Estevão Lopes Morago 1", 5, 40.6510, -7.9125),
-    ("Manuel Silva Almeida 2", 6, 40.6500, -7.9120),
-    ("Escola João de Barros 2", 7, 40.6510, -7.9130),
-    ("António Esteves Correia", 8, 40.6525, -7.9135),
-    ("25 Abril-Liceu 2", 9, 40.6540, -7.9130),
-    ("Rossio 2", 10, 40.6568, -7.9128),
-    ("Alves Martins", 11, 40.6575, -7.9135),
-    ("Dr Azeredo Perdigão 2", 12, 40.6550, -7.9120),
-    ("Monsenhor Celso T Silva", 13, 40.6545, -7.9140),
-    ("Universidade Católica", 14, 40.6535, -7.9160),
-    ("5 de Outubro 2", 15, 40.6550, -7.9150),
-    ("S Cristina-Cap S Pereira", 16, 40.6560, -7.9165),
-    ("Cap S Pereira-Fontelo", 17, 40.6575, -7.9150),
-    ("Largo Santo António", 18, 40.6585, -7.9135),
-    ("Porta dos Cavaleiros 2", 19, 40.6595, -7.9125),
-    ("Feira de S Mateus 1", 20, 40.6620, -7.9135),
-    ("Cava de Viriato 1", 21, 40.6650, -7.9130),
-    ("Av Bélgica-Alf Miguel 1", 22, 40.6670, -7.9180),
-    ("Avenida Bélgica 2", 23, 40.6685, -7.9200),
-    ("Pedro Henriques 1", 24, 40.6700, -7.9240),
-    ("Pedro Henriques 2", 25, 40.6710, -7.9250),
-    ("M Ferreira Figueiredo 2", 27, 40.6680, -7.9220),
-    ("Avenida Europa", 29, 40.6660, -7.9200),
-    ("Av Europa-Tribunal 1", 31, 40.6650, -7.9180),
-    ("Fonte Cibernética 1", 32, 40.6660, -7.9150),
-    ("COMV 2", 33, 40.6670, -7.9120),
-    ("César Anjo 2", 34, 40.6700, -7.9010),
-    ("Balsa 2", 35, 40.6690, -7.9020),
-    ("Cidade Aveiro", 36, 40.6675, -7.9030),
-    ("Monte Belo-Estádio 2", 37, 40.6665, -7.9040),
-    ("Monte Belo-J Infância 2", 38, 40.6650, -7.9050),
-    ("José Maria Escrivá 1", 39, 40.6635, -7.9060),
-    ("J Maria Escrivá-Hotel 1", 40, 40.6620, -7.9070),
-    ("Engrácia Carrilho-Igreja", 41, 40.6600, -7.9085),
-    ("Colégio Imac Conceição", 42, 40.6590, -7.9100),
-    ("Alberto Sampaio 3", 43, 40.6580, -7.9110),
-    ("Rossio 1", 44, 40.6568, -7.9128),
-    ("25 Abril-Liceu 1", 45, 40.6540, -7.9130),
-    ("25 Abril-Paulo VI", 45, 40.6520, -7.9150),
-    ("Reg Infantaria", 46, 40.6500, -7.9185),
-    ("Reg Infantaria-IPV 3", 47, 40.6485, -7.9180),
-    ("C Politécnica-Escola", 48, 40.6465, -7.9170),
-    ("Madre Rita de Jesus 1", 49, 40.6480, -7.9155),
-    ("M Rita Jesus-Escola 1", 50, 40.6495, -7.9140),
-    ("M Rita Jesus-C Saúde", 51, 40.6510, -7.9125),
-    ("M R Jesus-Int V Fontes", 52, 40.6525, -7.9110),
-    ("Quinta do Galo 1", 53, 40.6530, -7.9120),
-    ("Quinta da Alagoa", 54, 40.6545, -7.9100),
-    ("Escola Aquilino Ribeiro", 55, 40.6560, -7.9085),
-    ("Rei D Duarte-Hospital 2", 56, 40.6575, -7.9080),
-    ("Hospital S Teotónio", 57, 40.6580, -7.9068),
-    ("Interface Hospital (Chegada)", 60, 40.6582, -7.9065)
+    ('Interface Hospital', 0, 40.6582, -7.9065),
+    ('Biblioteca-Loja Cidadão', 1, 40.657, -7.908),
+    ('10 de Junho-Cemitério 2', 2, 40.6565, -7.9075),
+    ('Rua Mendonça', 3, 40.655, -7.909),
+    ('Escola Grão Vasco', 3, 40.6535, -7.911),
+    ('Praça de Goa', 4, 40.652, -7.912),
+    ('Estevão Lopes Morago 1', 5, 40.651, -7.9125),
+    ('Manuel Silva Almeida 2', 6, 40.65, -7.912),
+    ('Escola João de Barros 2', 7, 40.651, -7.913),
+    ('António Esteves Correia', 8, 40.6525, -7.9135),
+    ('25 Abril-Liceu 2', 9, 40.654, -7.913),
+    ('Rossio 2', 10, 40.6568, -7.9128),
+    ('Alves Martins', 11, 40.6575, -7.9135),
+    ('Dr Azeredo Perdigão 2', 12, 40.655, -7.912),
+    ('Monsenhor Celso T Silva', 13, 40.6545, -7.914),
+    ('Universidade Católica', 14, 40.6535, -7.916),
+    ('5 de Outubro 2', 15, 40.655, -7.915),
+    ('S Cristina-Cap S Pereira', 16, 40.656, -7.9165),
+    ('Cap S Pereira-Fontelo', 17, 40.6575, -7.915),
+    ('Largo Santo António', 18, 40.6585, -7.9135),
+    ('Porta dos Cavaleiros 2', 19, 40.6595, -7.9125),
+    ('Feira de S Mateus 1', 20, 40.662, -7.9135),
+    ('Cava de Viriato 1', 21, 40.665, -7.913),
+    ('Av Bélgica-Alf Miguel 1', 22, 40.667, -7.918),
+    ('Avenida Bélgica 2', 23, 40.6685, -7.92),
+    ('Pedro Henriques 1', 24, 40.67, -7.924),
+    ('Pedro Henriques 2', 25, 40.671, -7.925),
+    ('M Ferreira Figueiredo 2', 27, 40.668, -7.922),
+    ('Avenida Europa', 29, 40.666, -7.92),
+    ('Av Europa-Tribunal 1', 31, 40.665, -7.918),
+    ('Fonte Cibernética 1', 32, 40.666, -7.915),
+    ('COMV 2', 33, 40.667, -7.912),
+    ('César Anjo 2', 34, 40.67, -7.901),
+    ('Balsa 2', 35, 40.669, -7.902),
+    ('Cidade Aveiro', 36, 40.6675, -7.903),
+    ('Monte Belo-Estádio 2', 37, 40.6665, -7.904),
+    ('Monte Belo-J Infância 2', 38, 40.665, -7.905),
+    ('José Maria Escrivá 1', 39, 40.6635, -7.906),
+    ('J Maria Escrivá-Hotel 1', 40, 40.662, -7.907),
+    ('Engrácia Carrilho-Igreja', 41, 40.66, -7.9085),
+    ('Colégio Imac Conceição', 42, 40.659, -7.91),
+    ('Alberto Sampaio 3', 43, 40.658, -7.911),
+    ('Rossio 1', 44, 40.657, -7.9126),
+    ('25 Abril-Liceu 1', 45, 40.6542, -7.9128),
+    ('25 Abril-Paulo VI', 45, 40.652, -7.915),
+    ('Reg Infantaria', 46, 40.65, -7.9185),
+    ('Reg Infantaria-IPV 3', 47, 40.6485, -7.918),
+    ('C Politécnica-Escola', 48, 40.6465, -7.917),
+    ('Madre Rita de Jesus 1', 49, 40.648, -7.9155),
+    ('M Rita Jesus-Escola 1', 50, 40.6495, -7.914),
+    ('M Rita Jesus-C Saúde', 51, 40.6512, -7.9123),
+    ('M R Jesus-Int V Fontes', 52, 40.6525, -7.911),
+    ('Quinta do Galo 1', 53, 40.653, -7.912),
+    ('Quinta da Alagoa', 54, 40.6545, -7.91),
+    ('Escola Aquilino Ribeiro', 55, 40.656, -7.9085),
+    ('Rei D Duarte-Hospital 2', 56, 40.6575, -7.908),
+    ('Hospital S Teotónio', 57, 40.658, -7.9068),
+    ('Interface Hospital (Chegada)', 60, 40.6584, -7.9063)
 ]
 
-# --- PONTOS DE REFERÊNCIA / LANDMARKS MAP ---
 PONTOS_REFERENCIA = {
     "Interface Hospital": "🏥 Hospital de São Teotónio / Interface Transportes",
     "Rei D Duarte-Hospital 1": "🏥 Próximo ao Hospital S. Teotónio",
@@ -781,13 +780,13 @@ with tab_consultar:
 with tab_mapa:
     st.subheader("🗺️ Mapa do Percurso Urbano")
     
-    # 1. Build a master map of all stop names -> (lat, lon)
+    # Build master map of all stop names -> (lat, lon)
     all_stops_dict = {}
     for s_name, s_off, s_lat, s_lon in st.session_state["stops_c1"] + st.session_state["stops_c2"]:
         all_stops_dict[s_name] = (s_lat, s_lon)
 
-    orig_coords = all_stops_dict.get(origem)
-    dest_coords = all_stops_dict.get(destino)
+    orig_raw_coords = all_stops_dict.get(origem)
+    dest_raw_coords = all_stops_dict.get(destino)
 
     stops_c1_names = [s[0] for s in st.session_state["stops_c1"]]
     stops_c2_names = [s[0] for s in st.session_state["stops_c2"]]
@@ -797,13 +796,15 @@ with tab_mapa:
     c2_has_orig = origem in stops_c2_names
     c2_has_dest = destino in stops_c2_names
 
-    # Determine automatic default line for map
+    # Automatic selection of default line for map
     if c1_has_orig and c1_has_dest and not (c2_has_orig and c2_has_dest):
         auto_line = "C1"
     elif c2_has_orig and c2_has_dest and not (c1_has_orig and c1_has_dest):
         auto_line = "C2"
-    elif modo_linha == "Linha C1":
+    elif c1_has_orig:
         auto_line = "C1"
+    elif c2_has_orig:
+        auto_line = "C2"
     elif modo_linha == "Linha C2":
         auto_line = "C2"
     else:
@@ -860,6 +861,25 @@ with tab_mapa:
     map_stops = st.session_state["stops_c1"] if target_map_line == "C1" else st.session_state["stops_c2"]
     stop_names_list = [s[0] for s in map_stops]
     
+    # Detect if Origem and Destino have identical or near-identical coordinates (< 15 meters)
+    is_overlapping = False
+    if orig_raw_coords and dest_raw_coords and origem != destino:
+        lat_diff = abs(orig_raw_coords[0] - dest_raw_coords[0])
+        lon_diff = abs(orig_raw_coords[1] - dest_raw_coords[1])
+        if lat_diff < 0.00015 and lon_diff < 0.00015:
+            is_overlapping = True
+
+    # Calculate offset positions for visual separation if coordinates overlap
+    if is_overlapping:
+        orig_display_lat = orig_raw_coords[0] - 0.00015
+        orig_display_lon = orig_raw_coords[1] - 0.00015
+        dest_display_lat = dest_raw_coords[0] + 0.00015
+        dest_display_lon = dest_raw_coords[1] + 0.00015
+        st.info(f"📍 **Paragens Próximas / Lados Opostos:** As paragens **{origem}** e **{destino}** situam-se na mesma zona/lados opostos. Aplicada uma separação no mapa para visualizar ambos os marcadores (🟢 e 🔴) lado a lado.")
+    else:
+        orig_display_lat, orig_display_lon = orig_raw_coords if orig_raw_coords else (40.6600, -7.9120)
+        dest_display_lat, dest_display_lon = dest_raw_coords if dest_raw_coords else (40.6600, -7.9120)
+
     # Initialize Folium Map
     m = folium.Map(
         location=[40.6600, -7.9120], 
@@ -868,93 +888,76 @@ with tab_mapa:
         attr=tile_attr
     )
 
-    # Collect all points to auto-fit map bounds
+    # Collect points to auto-fit map bounds
     fit_points = [[s[2], s[3]] for s in map_stops]
-    if orig_coords: fit_points.append([orig_coords[0], orig_coords[1]])
-    if dest_coords: fit_points.append([dest_coords[0], dest_coords[1]])
+    if orig_raw_coords: fit_points.append([orig_raw_coords[0], orig_raw_coords[1]])
+    if dest_raw_coords: fit_points.append([dest_raw_coords[0], dest_raw_coords[1]])
 
     lats = [p[0] for p in fit_points]
     lons = [p[1] for p in fit_points]
     if lats and lons:
         m.fit_bounds([[min(lats), min(lons)], [max(lats), max(lons)]], padding=(25, 25))
     
-    # 1. Full Line Circuit Path (Dashed/Solid Blue)
+    # 1. Full Line Circuit Path (Solid Blue)
     full_path_coords = [[s[2], s[3]] for s in map_stops]
     folium.PolyLine(
         full_path_coords,
         color="#0066FF",
-        weight=5,
-        opacity=0.7,
+        weight=4,
+        opacity=0.75,
         tooltip=f"Circuito Completo da Linha {target_map_line}"
     ).add_to(m)
 
-    # 2. Highlighted Travel Segment (Origem -> Destino)
-    has_orig_on_line = origem in stop_names_list
-    has_dest_on_line = destino in stop_names_list
+    # 2. Highlighted Travel Segment (Origem -> Destino) in bold RED
+    has_orig = origem in stop_names_list
+    has_dest = destino in stop_names_list
 
-    if has_orig_on_line and has_dest_on_line:
+    if has_orig and has_dest and origem != destino:
         orig_idx = stop_names_list.index(origem)
         dest_idx = stop_names_list.index(destino)
         
-        if dest_idx >= orig_idx:
+        if dest_idx > orig_idx:
             sub_stops = map_stops[orig_idx : dest_idx + 1]
-        else:
+        elif dest_idx < orig_idx:
             sub_stops = map_stops[orig_idx:] + map_stops[: dest_idx + 1]
-            
+        else:
+            sub_stops = [map_stops[orig_idx]]
+
         sub_coords = [[s[2], s[3]] for s in sub_stops]
+        if len(sub_coords) >= 2:
+            folium.PolyLine(
+                sub_coords,
+                color="#FF0000",
+                weight=8,
+                opacity=0.95,
+                tooltip=f"🚀 Percurso Selecionado: {origem} ➔ {destino}"
+            ).add_to(m)
+            st.success(f"📍 **Percurso Destacado a Vermelho:** {origem} ➔ {destino} (Linha {target_map_line})")
+    elif (has_orig or has_dest) and orig_raw_coords and dest_raw_coords and origem != destino:
         folium.PolyLine(
-            sub_coords,
-            color="#FF0000",
-            weight=8,
-            opacity=0.95,
-            tooltip=f"🚀 Percurso Selecionado na Linha {target_map_line}: {origem} ➔ {destino}"
-        ).add_to(m)
-        st.success(f"📍 **Percurso Destacado a Vermelho:** {origem} ➔ {destino} (Linha {target_map_line})")
-    elif orig_coords and dest_coords:
-        # If origin and destination are on different lines, draw direct connecting segment
-        folium.PolyLine(
-            [[orig_coords[0], orig_coords[1]], [dest_coords[0], dest_coords[1]]],
+            [[orig_display_lat, orig_display_lon], [dest_display_lat, dest_display_lon]],
             color="#FF0000",
             weight=6,
             opacity=0.9,
             dash_array="8, 8",
             tooltip=f"🚀 Percurso entre Linhas: {origem} ➔ {destino}"
         ).add_to(m)
-        st.info(f"📍 **Ligação entre Linhas:** {origem} ➔ {destino}. (Origem e Destino em linhas diferentes; alterne a linha no seletor para ver o circuito correspondente).")
+        st.info(f"📍 **Percurso entre Linhas:** {origem} ➔ {destino}. (Linha ativa: {target_map_line}).")
 
-    # 3. Render Markers for Stops
-    rendered_orig_marker = False
-    rendered_dest_marker = False
+    if is_overlapping:
+        folium.PolyLine(
+            [[orig_display_lat, orig_display_lon], [dest_display_lat, dest_display_lon]],
+            color="#666666",
+            weight=3,
+            dash_array="4, 4",
+            tooltip=f"Ligação de Proximidade: {origem} / {destino}"
+        ).add_to(m)
 
+    # 3. Render Intermediate Stop Markers
     for s_name, s_off, s_lat, s_lon in map_stops:
-        ref_text = PONTOS_REFERENCIA.get(s_name, "")
-        ref_label = f"<br><small>{ref_text}</small>" if ref_text else ""
-        
-        if s_name == origem:
-            rendered_orig_marker = True
-            icon = folium.Icon(color="green", icon="play", prefix="fa")
-            popup_html = f"<div style='font-family:sans-serif;'><b>🟢 ORIGEM: {s_name}</b>{ref_label}</div>"
-            tooltip_txt = f"🟢 Origem: {s_name}"
-            folium.Marker(
-                location=[s_lat, s_lon],
-                popup=folium.Popup(popup_html, max_width=250),
-                tooltip=tooltip_txt,
-                icon=icon,
-                z_index_offset=1000
-            ).add_to(m)
-        elif s_name == destino and origem != destino:
-            rendered_dest_marker = True
-            icon = folium.Icon(color="red", icon="flag", prefix="fa")
-            popup_html = f"<div style='font-family:sans-serif;'><b>🔴 DESTINO: {s_name}</b>{ref_label}</div>"
-            tooltip_txt = f"🔴 Destino: {s_name}"
-            folium.Marker(
-                location=[s_lat, s_lon],
-                popup=folium.Popup(popup_html, max_width=250),
-                tooltip=tooltip_txt,
-                icon=icon,
-                z_index_offset=1000
-            ).add_to(m)
-        else:
+        if s_name != origem and s_name != destino:
+            ref_text = PONTOS_REFERENCIA.get(s_name, "")
+            ref_label = f"<br><small>{ref_text}</small>" if ref_text else ""
             popup_html = f"<div style='font-family:sans-serif;'><b>🚌 Paragem: {s_name}</b>{ref_label}</div>"
             folium.CircleMarker(
                 location=[s_lat, s_lon],
@@ -967,35 +970,37 @@ with tab_mapa:
                 tooltip=f"🚌 Paragem: {s_name}"
             ).add_to(m)
 
-    # 4. Guarantee Origin & Destination Markers if not rendered by the active line loop
-    if orig_coords and not rendered_orig_marker:
+    # 4. Render ORIGEM (Green) and DESTINO (Red) Markers explicitly
+    if orig_raw_coords:
         ref_text = PONTOS_REFERENCIA.get(origem, "")
         ref_label = f"<br><small>{ref_text}</small>" if ref_text else ""
         icon = folium.Icon(color="green", icon="play", prefix="fa")
         popup_html = f"<div style='font-family:sans-serif;'><b>🟢 ORIGEM: {origem}</b>{ref_label}</div>"
         folium.Marker(
-            location=[orig_coords[0], orig_coords[1]],
+            location=[orig_display_lat, orig_display_lon],
             popup=folium.Popup(popup_html, max_width=250),
             tooltip=f"🟢 Origem: {origem}",
             icon=icon,
-            z_index_offset=1000
+            z_index_offset=2000
         ).add_to(m)
 
-    if dest_coords and not rendered_dest_marker and origem != destino:
+    if dest_raw_coords and origem != destino:
         ref_text = PONTOS_REFERENCIA.get(destino, "")
         ref_label = f"<br><small>{ref_text}</small>" if ref_text else ""
-        icon = folium.Icon(color=red, icon=flag, prefix=fa)
+        icon = folium.Icon(color="red", icon="flag", prefix="fa")
         popup_html = f"<div style='font-family:sans-serif;'><b>🔴 DESTINO: {destino}</b>{ref_label}</div>"
         folium.Marker(
-            location=[dest_coords[0], dest_coords[1]],
+            location=[dest_display_lat, dest_display_lon],
             popup=folium.Popup(popup_html, max_width=250),
             tooltip=f"🔴 Destino: {destino}",
             icon=icon,
-            z_index_offset=1000
+            z_index_offset=1500
         ).add_to(m)
 
     st_html(m.get_root().render(), height=540)
     st.caption("🟢 Verde: Paragem de Origem | 🔴 Vermelho: Paragem de Destino | ➖🔴 Linha Vermelha: Percurso Selecionado | ➖🔵 Linha Azul: Circuito Completo")
+
+
 with tab_detalhes:
     st.subheader("📱 Visão Mobile Compacta")
     st.markdown("Visualização otimizada em cartões interativos para ecrãs de smartphone.")
