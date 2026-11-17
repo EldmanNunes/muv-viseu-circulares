@@ -7,6 +7,8 @@ import io
 import json
 import os
 import pdfplumber
+import folium
+from streamlit.components.v1 import html as st_html
 
 # --- PAGE CONFIGURATION ---
 st.set_page_config(
@@ -484,7 +486,7 @@ END:VCALENDAR"""
     return ics_content.encode("utf-8")
 
 # --- USER INTERFACE ---
-st.title("🚌 Consultor de Horários MUV Viseu (v6 - Com Pontos de Referência)")
+st.title("🚌 Consultor de Horários MUV Viseu (v10 - Com Mapa Interativo Detalhado)")
 st.markdown("Aplicação interativa em Python e Streamlit com **Comparador Inteligente C1 vs C2**, **Gestor de Favoritos**, **mapa PyDeck**, **PDF upload**, e **exportação .ICS/PDF/CSV**.")
 
 # Sidebar Settings
@@ -750,86 +752,68 @@ with tab_mapa:
     target_map_line = "C1" if modo_linha == "Linha C1" else "C2"
     st.subheader(f"🗺️ Mapa do Circuito Urbano - Linha {target_map_line}")
     
-    map_stops = st.session_state["stops_c1"] if target_map_line == "C1" else st.session_state["stops_c2"]
-    map_data = []
-    path_coords = []
-    
-    for s_name, s_off, s_lat, s_lon in map_stops:
-        path_coords.append([s_lon, s_lat])
-        
-        if s_name == origem:
-            color = [0, 200, 80, 220]    # Green for origin
-            radius = 120
-        elif s_name == destino:
-            color = [230, 40, 40, 220]   # Red for destination
-            radius = 120
-        else:
-            color = [30, 120, 220, 160]  # Blue for other stops
-            radius = 65
-            
-        map_data.append({
-            "name": s_name,
-            "lat": s_lat,
-            "lon": s_lon,
-            "color": color,
-            "radius": radius
-        })
-        
-    df_map = pd.DataFrame(map_data)
-    
-    scatter_layer = pdk.Layer(
-        "ScatterplotLayer",
-        data=df_map,
-        get_position=["lon", "lat"],
-        get_color="color",
-        get_radius="radius",
-        pickable=True
-    )
-    
-    path_data = [{"path": path_coords}]
-    path_layer = pdk.Layer(
-        "PathLayer",
-        data=path_data,
-        get_path="path",
-        get_color=[0, 100, 200, 180],
-        width_min_pixels=3
-    )
-    
-    view_state = pdk.ViewState(
-        latitude=40.6600,
-        longitude=-7.9120,
-        zoom=13,
-        pitch=0
-    )
-    
     col_map1, col_map2 = st.columns([2, 1])
-    with col_map2:
+    with col_map1:
         estilo_mapa = st.selectbox(
-            "🗺️ Estilo de Visualização do Mapa",
+            "🗺️ Escolha o Estilo de Visualização do Mapa",
             [
-                "🗺️ Claro & Detalhado (Estilo Google Maps / Voyager)",
-                "🏙️ Positron (Claro Minimalista)",
-                "🌙 Escuro (Modo Noturno)"
+                "🗺️ OpenStreetMap (Detalhado - Estilo Google Maps / Ruas de Viseu)",
+                "🏙️ CartoDB Voyager (Claro & Moderno)",
+                "🏢 CartoDB Positron (Claro Minimalista)",
+                "🌙 CartoDB Dark (Modo Noturno)"
             ],
-            index=0
+            index=0,
+            key="map_style_select"
         )
     
-    if "Google Maps" in estilo_mapa:
-        selected_style = "carto-voyager"
-    elif "Positron" in estilo_mapa:
-        selected_style = "carto-positron"
-    else:
-        selected_style = "dark"
-
-    r = pdk.Deck(
-        layers=[path_layer, scatter_layer],
-        initial_view_state=view_state,
-        map_style=selected_style,
-        tooltip={"text": "Paragem: {name}"}
-    )
+    tile_mapping = {
+        "🗺️ OpenStreetMap (Detalhado - Estilo Google Maps / Ruas de Viseu)": "OpenStreetMap",
+        "🏙️ CartoDB Voyager (Claro & Moderno)": "CartoDB voyager",
+        "🏢 CartoDB Positron (Claro Minimalista)": "CartoDB positron",
+        "🌙 CartoDB Dark (Modo Noturno)": "CartoDB dark_matter"
+    }
     
-    st.pydeck_chart(r)
-    st.caption("🟢 Verde: Origem | 🔴 Vermelho: Destino | 🔵 Azul: Outras paragens | ➖ Linha azul: Rota do circuito")
+    chosen_tile = tile_mapping.get(estilo_mapa, "OpenStreetMap")
+    map_stops = st.session_state["stops_c1"] if target_map_line == "C1" else st.session_state["stops_c2"]
+    
+    folium_path = []
+    m = folium.Map(location=[40.6600, -7.9120], zoom_start=14, tiles=chosen_tile)
+
+    for s_name, s_off, s_lat, s_lon in map_stops:
+        folium_path.append([s_lat, s_lon])
+        ref_text = PONTOS_REFERENCIA.get(s_name, s_name)
+        
+        if s_name == origem:
+            icon = folium.Icon(color="green", icon="play", prefix="fa")
+            popup_html = f"<div style='font-family:sans-serif;'><b>🟢 ORIGEM: {s_name}</b><br><small>{ref_text}</small></div>"
+            tooltip_txt = f"🟢 Origem: {s_name}"
+        elif s_name == destino:
+            icon = folium.Icon(color="red", icon="flag", prefix="fa")
+            popup_html = f"<div style='font-family:sans-serif;'><b>🔴 DESTINO: {s_name}</b><br><small>{ref_text}</small></div>"
+            tooltip_txt = f"🔴 Destino: {s_name}"
+        else:
+            icon = folium.Icon(color="blue", icon="bus", prefix="fa")
+            popup_html = f"<div style='font-family:sans-serif;'><b>🚌 Paragem: {s_name}</b><br><small>{ref_text}</small></div>"
+            tooltip_txt = f"🚌 {s_name}"
+
+        folium.Marker(
+            location=[s_lat, s_lon],
+            popup=folium.Popup(popup_html, max_width=250),
+            tooltip=tooltip_txt,
+            icon=icon
+        ).add_to(m)
+
+    folium.PolyLine(
+        folium_path,
+        color="#0066CC",
+        weight=5,
+        opacity=0.85,
+        tooltip=f"Circuito da Linha {target_map_line}"
+    ).add_to(m)
+
+    st_html(m.get_root().render(), height=520, key=f'map_folium_{target_map_line}_{chosen_tile.replace(" ", "_")}')
+    st.caption("🟢 Verde: Paragem de Origem | 🔴 Vermelho: Paragem de Destino | 🔵 Azul: Paragens da Linha | ➖ Linha azul: Rota do circuito")
+
 
 with tab_detalhes:
     st.subheader("📱 Visão Mobile Compacta")
@@ -849,4 +833,4 @@ with tab_detalhes:
                 st.write(f"• **Partida do Terminal:** {trip['Saída Terminal']}")
 
 st.markdown("---")
-st.caption("MUV Viseu App v5 Inteligente - Sistema de Horários & Mobilidade Urbana de Viseu.")
+st.caption("MUV Viseu App v10 - MUViseu Circulares - Sistema de Horários & Mobilidade Urbana de Viseu.")
