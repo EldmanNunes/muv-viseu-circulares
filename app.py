@@ -48,21 +48,21 @@ DEFAULT_STOPS_C1 = [
     ('Rei D Duarte-Hospital 1', 1, 40.6575, -7.908),
     ('Quinta D´el Rei', 2, 40.656, -7.909),
     ('Dr A Alves-C Comercial 1', 3, 40.6545, -7.9105),
-    ('Quinta do Galo 2', 4, 40.653, -7.912),
+    ('Quinta do Galo 2', 4, 40.6536, -7.9114),
     ('Quinta de Jugueiros', 5, 40.6515, -7.9135),
     ('Residências IPV', 6, 40.6495, -7.915),
     ('Rua Nova', 7, 40.648, -7.916),
     ('Cidade Politécnica-IPV', 8, 40.6465, -7.917),
     ('Reg Infantaria-IPV 1', 9, 40.6485, -7.918),
-    ('Reg Infantaria-IPV 2', 10, 40.65, -7.9185),
+    ('Reg Infantaria-IPV 2', 10, 40.6506, -7.9179),
     ('Paulo VI-25 Abril', 11, 40.652, -7.915),
-    ('25 Abril-Liceu 2', 12, 40.654, -7.913),
-    ('Rossio 2', 13, 40.6568, -7.9128),
+    ('25 Abril-Liceu 2', 12, 40.6546, -7.9124),
+    ('Rossio 2', 13, 40.6574, -7.9122),
     ('Alberto Sampaio 1', 14, 40.658, -7.911),
-    ('Alberto Sampaio 2', 15, 40.659, -7.9095),
+    ('Alberto Sampaio 2', 15, 40.6596, -7.9089),
     ('N. S. Fátima-Igreja', 16, 40.6605, -7.908),
-    ('J Maria Escrivá-Hotel 2', 17, 40.662, -7.907),
-    ('José Maria Escrivá 2', 18, 40.6635, -7.906),
+    ('J Maria Escrivá-Hotel 2', 17, 40.6626, -7.9064),
+    ('José Maria Escrivá 2', 18, 40.6641, -7.9054),
     ('Monte Belo-J Infância 1', 19, 40.665, -7.905),
     ('Monte Belo-Estádio 1', 20, 40.6665, -7.904),
     ('Campo dos Trambelos', 21, 40.668, -7.903),
@@ -70,14 +70,14 @@ DEFAULT_STOPS_C1 = [
     ('César Anjo 1', 23, 40.67, -7.901),
     ('Bombeiros Voluntários', 24, 40.6685, -7.908),
     ('COMV 1', 25, 40.667, -7.912),
-    ('Fonte Cibernética 2', 26, 40.666, -7.915),
-    ('Av Europa-Tribunal 2', 27, 40.665, -7.918),
+    ('Fonte Cibernética 2', 26, 40.6666, -7.9144),
+    ('Av Europa-Tribunal 2', 27, 40.6656, -7.9174),
     ('M Ferreira Figueiredo 1', 30, 40.668, -7.922),
     ('Pedro Henriques 1', 31, 40.67, -7.924),
-    ('Escola Viriato 2', 33, 40.672, -7.926),
+    ('Escola Viriato 2', 33, 40.6726, -7.9254),
     ('Estrada Velha Abraveses', 35, 40.674, -7.928),
-    ('Cava de Viriato 2', 37, 40.665, -7.913),
-    ('Feira de S. Mateus 2', 38, 40.662, -7.9135),
+    ('Cava de Viriato 2', 37, 40.6656, -7.9124),
+    ('Feira de S. Mateus 2', 38, 40.6626, -7.9129),
     ('Porta dos Cavaleiros 1', 39, 40.6595, -7.9125),
     ('Mouzinho de Albuquerque', 40, 40.658, -7.914),
     ('Capitão Silva Pereira', 41, 40.657, -7.9155),
@@ -91,53 +91,53 @@ DEFAULT_STOPS_C1 = [
     ('Nuno Alvares Pereira', 51, 40.6525, -7.914),
     ('Escola João de Barros 1', 52, 40.651, -7.913),
     ('Manuel Silva Almeida 1', 53, 40.65, -7.912),
-    ('Paulo VI-25 Abril (Regresso)', 54, 40.6522, -7.9148),
+    ('Paulo VI-25 Abril (Regresso)', 54, 40.6528, -7.9142),
     ('Escola Grão Vasco', 55, 40.6535, -7.911),
     ('Alexandre Lucena e Vale', 56, 40.655, -7.909),
     ('10 de Junho-Cemitério 1', 57, 40.6565, -7.9075),
     ('Rei D Duarte-Mesuras', 58, 40.6575, -7.907),
     ('Hospital S Teotónio', 58, 40.658, -7.9068),
-    ('Interface Hospital (Chegada)', 60, 40.6584, -7.9063)
+    ('Interface Hospital (Chegada)', 60, 40.659, -7.9057)
 ]
 
 DEFAULT_STOPS_C2 = [
     ('Interface Hospital', 0, 40.6582, -7.9065),
     ('Biblioteca-Loja Cidadão', 1, 40.657, -7.908),
-    ('10 de Junho-Cemitério 2', 2, 40.6565, -7.9075),
+    ('10 de Junho-Cemitério 2', 2, 40.6571, -7.9069),
     ('Rua Mendonça', 3, 40.655, -7.909),
     ('Escola Grão Vasco', 3, 40.6535, -7.911),
     ('Praça de Goa', 4, 40.652, -7.912),
     ('Estevão Lopes Morago 1', 5, 40.651, -7.9125),
-    ('Manuel Silva Almeida 2', 6, 40.65, -7.912),
-    ('Escola João de Barros 2', 7, 40.651, -7.913),
+    ('Manuel Silva Almeida 2', 6, 40.6506, -7.9114),
+    ('Escola João de Barros 2', 7, 40.6516, -7.9124),
     ('António Esteves Correia', 8, 40.6525, -7.9135),
-    ('25 Abril-Liceu 2', 9, 40.654, -7.913),
-    ('Rossio 2', 10, 40.6568, -7.9128),
+    ('25 Abril-Liceu 2', 9, 40.6546, -7.9124),
+    ('Rossio 2', 10, 40.6574, -7.9122),
     ('Alves Martins', 11, 40.6575, -7.9135),
-    ('Dr Azeredo Perdigão 2', 12, 40.655, -7.912),
+    ('Dr Azeredo Perdigão 2', 12, 40.6556, -7.9114),
     ('Monsenhor Celso T Silva', 13, 40.6545, -7.914),
     ('Universidade Católica', 14, 40.6535, -7.916),
-    ('5 de Outubro 2', 15, 40.655, -7.915),
+    ('5 de Outubro 2', 15, 40.6556, -7.9144),
     ('S Cristina-Cap S Pereira', 16, 40.656, -7.9165),
     ('Cap S Pereira-Fontelo', 17, 40.6575, -7.915),
     ('Largo Santo António', 18, 40.6585, -7.9135),
-    ('Porta dos Cavaleiros 2', 19, 40.6595, -7.9125),
+    ('Porta dos Cavaleiros 2', 19, 40.6601, -7.9119),
     ('Feira de S Mateus 1', 20, 40.662, -7.9135),
     ('Cava de Viriato 1', 21, 40.665, -7.913),
     ('Av Bélgica-Alf Miguel 1', 22, 40.667, -7.918),
-    ('Avenida Bélgica 2', 23, 40.6685, -7.92),
+    ('Avenida Bélgica 2', 23, 40.6691, -7.9194),
     ('Pedro Henriques 1', 24, 40.67, -7.924),
-    ('Pedro Henriques 2', 25, 40.671, -7.925),
-    ('M Ferreira Figueiredo 2', 27, 40.668, -7.922),
+    ('Pedro Henriques 2', 25, 40.6716, -7.9244),
+    ('M Ferreira Figueiredo 2', 27, 40.6686, -7.9214),
     ('Avenida Europa', 29, 40.666, -7.92),
     ('Av Europa-Tribunal 1', 31, 40.665, -7.918),
     ('Fonte Cibernética 1', 32, 40.666, -7.915),
-    ('COMV 2', 33, 40.667, -7.912),
-    ('César Anjo 2', 34, 40.67, -7.901),
-    ('Balsa 2', 35, 40.669, -7.902),
+    ('COMV 2', 33, 40.6676, -7.9114),
+    ('César Anjo 2', 34, 40.6706, -7.9004),
+    ('Balsa 2', 35, 40.6696, -7.9014),
     ('Cidade Aveiro', 36, 40.6675, -7.903),
-    ('Monte Belo-Estádio 2', 37, 40.6665, -7.904),
-    ('Monte Belo-J Infância 2', 38, 40.665, -7.905),
+    ('Monte Belo-Estádio 2', 37, 40.6671, -7.9034),
+    ('Monte Belo-J Infância 2', 38, 40.6656, -7.9044),
     ('José Maria Escrivá 1', 39, 40.6635, -7.906),
     ('J Maria Escrivá-Hotel 1', 40, 40.662, -7.907),
     ('Engrácia Carrilho-Igreja', 41, 40.66, -7.9085),
@@ -156,10 +156,15 @@ DEFAULT_STOPS_C2 = [
     ('Quinta do Galo 1', 53, 40.653, -7.912),
     ('Quinta da Alagoa', 54, 40.6545, -7.91),
     ('Escola Aquilino Ribeiro', 55, 40.656, -7.9085),
-    ('Rei D Duarte-Hospital 2', 56, 40.6575, -7.908),
+    ('Rei D Duarte-Hospital 2', 56, 40.6581, -7.9074),
     ('Hospital S Teotónio', 57, 40.658, -7.9068),
-    ('Interface Hospital (Chegada)', 60, 40.6584, -7.9063)
+    ('Interface Hospital (Chegada)', 60, 40.659, -7.9057)
 ]
+
+
+MASTER_STOP_COORDS = {}
+for _s in DEFAULT_STOPS_C1 + DEFAULT_STOPS_C2:
+    MASTER_STOP_COORDS[_s[0]] = (_s[2], _s[3])
 
 PONTOS_REFERENCIA = {
     "Interface Hospital": "🏥 Hospital de São Teotónio / Interface Transportes",
@@ -330,7 +335,8 @@ def parse_pdf_schedules(pdf_file):
                         if ":" in clean_row[1] and len(clean_row[1]) == 5:
                             if stop_candidate not in [s[0] for s in parsed_stops]:
                                 offset = len(parsed_stops) * 2
-                                parsed_stops.append((stop_candidate, offset, 40.6568, -7.9128))
+                                coords = MASTER_STOP_COORDS.get(stop_candidate, (40.6568 + len(parsed_stops)*0.0003, -7.9128 + len(parsed_stops)*0.0003))
+                                parsed_stops.append((stop_candidate, offset, coords[0], coords[1]))
 
         if "C1" in full_text or "Linha C1" in full_text:
             parsed_line = "C1"
@@ -866,16 +872,15 @@ with tab_mapa:
     if orig_raw_coords and dest_raw_coords and origem != destino:
         lat_diff = abs(orig_raw_coords[0] - dest_raw_coords[0])
         lon_diff = abs(orig_raw_coords[1] - dest_raw_coords[1])
-        if lat_diff < 0.00015 and lon_diff < 0.00015:
+        if lat_diff < 0.0025 and lon_diff < 0.0025:
             is_overlapping = True
 
-    # Calculate offset positions for visual separation if coordinates overlap
-    if is_overlapping:
-        orig_display_lat = orig_raw_coords[0] - 0.00015
-        orig_display_lon = orig_raw_coords[1] - 0.00015
-        dest_display_lat = dest_raw_coords[0] + 0.00015
-        dest_display_lon = dest_raw_coords[1] + 0.00015
-        st.info(f"📍 **Paragens Próximas / Lados Opostos:** As paragens **{origem}** e **{destino}** situam-se na mesma zona/lados opostos. Aplicada uma separação no mapa para visualizar ambos os marcadores (🟢 e 🔴) lado a lado.")
+    if is_overlapping and orig_raw_coords and dest_raw_coords:
+        orig_display_lat = orig_raw_coords[0] - 0.0007
+        orig_display_lon = orig_raw_coords[1] - 0.0007
+        dest_display_lat = dest_raw_coords[0] + 0.0007
+        dest_display_lon = dest_raw_coords[1] + 0.0007
+        st.info(f"🟢 **Origem ({origem})** e 🔴 **Destino ({destino})** com separação visual aplicada no mapa para exibição dos dois marcadores lado a lado.")
     else:
         orig_display_lat, orig_display_lon = orig_raw_coords if orig_raw_coords else (40.6600, -7.9120)
         dest_display_lat, dest_display_lon = dest_raw_coords if dest_raw_coords else (40.6600, -7.9120)
@@ -981,7 +986,7 @@ with tab_mapa:
             popup=folium.Popup(popup_html, max_width=250),
             tooltip=f"🟢 Origem: {origem}",
             icon=icon,
-            z_index_offset=2000
+            z_index_offset=2500
         ).add_to(m)
 
     if dest_raw_coords and origem != destino:
@@ -994,7 +999,7 @@ with tab_mapa:
             popup=folium.Popup(popup_html, max_width=250),
             tooltip=f"🔴 Destino: {destino}",
             icon=icon,
-            z_index_offset=1500
+            z_index_offset=2000
         ).add_to(m)
 
     st_html(m.get_root().render(), height=540)
@@ -1019,4 +1024,4 @@ with tab_detalhes:
                 st.write(f"• **Partida do Terminal:** {trip['Saída Terminal']}")
 
 st.markdown("---")
-st.caption("MUViseu Circulares v15 - Sistema Inteligente de Horários & Mobilidade Urbana de Viseu.")
+st.caption("MUViseu Circulares v18 - Sistema Inteligente de Horários & Mobilidade Urbana de Viseu.")
