@@ -749,16 +749,30 @@ with tab_consultar:
                     )
 
 with tab_mapa:
-    target_map_line = "C1" if modo_linha == "Linha C1" else "C2"
-    st.subheader(f"🗺️ Mapa do Circuito Urbano - Linha {target_map_line}")
+    st.subheader("🗺️ Mapa do Percurso Urbano")
     
-    col_map1, col_map2 = st.columns([2, 1])
-    with col_map1:
+    col_map_line, col_map_style = st.columns([1, 1])
+    with col_map_line:
+        if modo_linha == "Linha C1":
+            target_map_line = "C1"
+            st.info("🚌 Exibindo circuito da **Linha C1**")
+        elif modo_linha == "Linha C2":
+            target_map_line = "C2"
+            st.info("🚌 Exibindo circuito da **Linha C2**")
+        else:
+            target_map_line = st.radio(
+                "Escolha a Linha para Visualizar no Mapa:",
+                ["C1", "C2"],
+                horizontal=True,
+                key="map_line_select"
+            )
+            
+    with col_map_style:
         estilo_mapa = st.selectbox(
             "🗺️ Escolha o Estilo de Visualização do Mapa",
             [
                 "🗺️ OpenStreetMap (Detalhado - Estilo Google Maps / Ruas de Viseu)",
-                "🏙️ CartoDB Voyager (Claro & Moderno)",
+                "🏙️ CartoDB Voyager (Claro & Detalhado)",
                 "🏢 CartoDB Positron (Claro Minimalista)",
                 "🌙 CartoDB Dark (Modo Noturno)"
             ],
@@ -766,21 +780,76 @@ with tab_mapa:
             key="map_style_select"
         )
     
-    tile_mapping = {
-        "🗺️ OpenStreetMap (Detalhado - Estilo Google Maps / Ruas de Viseu)": "OpenStreetMap",
-        "🏙️ CartoDB Voyager (Claro & Moderno)": "CartoDB voyager",
-        "🏢 CartoDB Positron (Claro Minimalista)": "CartoDB positron",
-        "🌙 CartoDB Dark (Modo Noturno)": "CartoDB dark_matter"
+    proto_str = "http" + "s://"
+    tile_providers = {
+        "🗺️ OpenStreetMap (Detalhado - Estilo Google Maps / Ruas de Viseu)": (
+            proto_str + "{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+            "&copy; OpenStreetMap contributors"
+        ),
+        "🏙️ CartoDB Voyager (Claro & Detalhado)": (
+            proto_str + "{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
+            "&copy; OpenStreetMap &copy; CARTO"
+        ),
+        "🏢 CartoDB Positron (Claro Minimalista)": (
+            proto_str + "{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+            "&copy; OpenStreetMap &copy; CARTO"
+        ),
+        "🌙 CartoDB Dark (Modo Noturno)": (
+            proto_str + "{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+            "&copy; OpenStreetMap &copy; CARTO"
+        )
     }
     
-    chosen_tile = tile_mapping.get(estilo_mapa, "OpenStreetMap")
-    map_stops = st.session_state["stops_c1"] if target_map_line == "C1" else st.session_state["stops_c2"]
+    tile_url, tile_attr = tile_providers.get(
+        estilo_mapa, 
+        tile_providers["🗺️ OpenStreetMap (Detalhado - Estilo Google Maps / Ruas de Viseu)"]
+    )
     
-    folium_path = []
-    m = folium.Map(location=[40.6600, -7.9120], zoom_start=14, tiles=chosen_tile)
+    map_stops = st.session_state["stops_c1"] if target_map_line == "C1" else st.session_state["stops_c2"]
+    stop_names_list = [s[0] for s in map_stops]
+    
+    # Initialize Folium Map
+    m = folium.Map(location=[40.6600, -7.9120], zoom_start=14, tiles=None)
+    folium.TileLayer(tiles=tile_url, attr=tile_attr, name=estilo_mapa).add_to(m)
+    
+    # Draw full circuit path (dashed light blue)
+    full_path_coords = [[s[2], s[3]] for s in map_stops]
+    folium.PolyLine(
+        full_path_coords,
+        color="#3388ff",
+        weight=4,
+        opacity=0.4,
+        dash_array="6, 6",
+        tooltip=f"Circuito Completo - Linha {target_map_line}"
+    ).add_to(m)
 
+    # Highlight active travel route segment (Origem -> Destino) if both exist on this line
+    has_orig = origem in stop_names_list
+    has_dest = destino in stop_names_list
+
+    if has_orig and has_dest:
+        orig_idx = stop_names_list.index(origem)
+        dest_idx = stop_names_list.index(destino)
+        
+        if dest_idx >= orig_idx:
+            sub_stops = map_stops[orig_idx : dest_idx + 1]
+        else:
+            sub_stops = map_stops[orig_idx:] + map_stops[: dest_idx + 1]
+            
+        sub_coords = [[s[2], s[3]] for s in sub_stops]
+        folium.PolyLine(
+            sub_coords,
+            color="#E60000",
+            weight=7,
+            opacity=0.9,
+            tooltip=f"🚀 Percurso Selecionado: {origem} ➔ {destino}"
+        ).add_to(m)
+        st.success(f"📍 **Percurso Destacado a Vermelho:** {origem} ➔ {destino} (Linha {target_map_line})")
+    elif has_orig or has_dest:
+        st.info(f"ℹ️ A paragem de {'Origem' if has_orig else 'Destino'} encontra-se nesta linha. Alterne para a outra linha para ver o percurso completo.")
+
+    # Render markers for stops
     for s_name, s_off, s_lat, s_lon in map_stops:
-        folium_path.append([s_lat, s_lon])
         ref_text = PONTOS_REFERENCIA.get(s_name, s_name)
         
         if s_name == origem:
@@ -803,16 +872,8 @@ with tab_mapa:
             icon=icon
         ).add_to(m)
 
-    folium.PolyLine(
-        folium_path,
-        color="#0066CC",
-        weight=5,
-        opacity=0.85,
-        tooltip=f"Circuito da Linha {target_map_line}"
-    ).add_to(m)
-
-    st_html(m.get_root().render(), height=520)
-    st.caption("🟢 Verde: Paragem de Origem | 🔴 Vermelho: Paragem de Destino | 🔵 Azul: Paragens da Linha | ➖ Linha azul: Rota do circuito")
+    st_html(m.get_root().render(), height=540)
+    st.caption("🟢 Verde: Paragem de Origem | 🔴 Vermelho: Paragem de Destino | ➖🔴 Linha Vermelha: Percurso Selecionado | ➖🔵 Linha Tracejada: Circuito Completo")
 
 
 with tab_detalhes:
