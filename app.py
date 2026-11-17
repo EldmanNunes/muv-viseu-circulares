@@ -165,108 +165,66 @@ DEFAULT_STOPS_C2 = [
 PONTOS_REFERENCIA = {
     "Interface Hospital": "🏥 Hospital de São Teotónio / Interface Transportes",
     "Rei D Duarte-Hospital 1": "🏥 Próximo ao Hospital S. Teotónio",
-    "Quinta D´el Rei": "🏡 Quinta D'el Rei",
-    "Dr A Alves-C Comercial 1": "🛍️ Av. Dr. António Alves / Zona Comercial",
-    "Quinta do Galo 2": "🏢 Quinta do Galo",
-    "Quinta do Galo 1": "🏢 Quinta do Galo",
-    "Quinta de Jugueiros": "🏫 Jugueiros",
-    "Residências IPV": "🎓 Residências Universitárias IPV",
-    "Rua Nova": "📍 Rua Nova",
-    "Cidade Politécnica-IPV": "🎓 IPV - Instituto Politécnico de Viseu (Campus)",
-    "C Politécnica-Escola": "🎓 IPV - Instituto Politécnico de Viseu",
-    "Reg Infantaria-IPV 1": "🎖️ Regimento de Infantaria n.º 14 / IPV",
-    "Reg Infantaria-IPV 2": "🎖️ Regimento de Infantaria n.º 14",
-    "Reg Infantaria-IPV 3": "🎖️ Regimento de Infantaria n.º 14",
-    "Reg Infantaria": "🎖️ Regimento de Infantaria n.º 14",
-    "Paulo VI-25 Abril": "⛪ Colégio Via Sacra / Av. Paulo VI",
-    "25 Abril-Liceu 2": "🏫 Escola Secundária Alves Martins (Liceu)",
-    "25 Abril-Liceu 1": "🏫 Escola Secundária Alves Martins (Liceu)",
-    "25 Abril-Paulo VI": "⛪ Av. Paulo VI",
-    "Rossio 2": "🌳 Praça da República (Rossio) / Centro Histórico",
-    "Rossio 1": "🌳 Praça da República (Rossio) / Centro Histórico",
-    "Alberto Sampaio 1": "🏛️ Av. Alberto Sampaio",
-    "Alberto Sampaio 2": "🏛️ Av. Alberto Sampaio",
-    "Alberto Sampaio 3": "🏛️ Av. Alberto Sampaio",
-    "N. S. Fátima-Igreja": "⛪ Igreja de Nossa Senhora de Fátima",
-    "J Maria Escrivá-Hotel 2": "🏨 Zona Hoteleira / Av. José Maria Escrivá",
-    "J Maria Escrivá-Hotel 1": "🏨 Zona Hoteleira / Av. José Maria Escrivá",
-    "José Maria Escrivá 2": "📍 Av. José Maria Escrivá",
-    "José Maria Escrivá 1": "📍 Av. José Maria Escrivá",
-    "Monte Belo-J Infância 1": "🏫 Monte Belo / Jardim de Infância",
-    "Monte Belo-J Infância 2": "🏫 Monte Belo / Jardim de Infância",
-    "Monte Belo-Estádio 1": "⚽ Monte Belo / Estádio do Fontelo",
-    "Monte Belo-Estádio 2": "⚽ Monte Belo / Estádio do Fontelo",
-    "Campo dos Trambelos": "🏟️ Campo dos Trambelos",
-    "Balsa 1": "📍 Balsa",
-    "Balsa 2": "📍 Balsa",
-    "César Anjo 1": "📍 Rua César Anjo",
-    "César Anjo 2": "📍 Rua César Anjo",
-    "Bombeiros Voluntários": "🚒 Quartel dos Bombeiros Voluntários",
-    "COMV 1": "🚌 Central de Camionagem / Rodoviária (COMV)",
-    "COMV 2": "🚌 Central de Camionagem / Rodoviária (COMV)",
-    "Fonte Cibernética 2": "⛲ Fonte Cibernética / Parque Aquilino Ribeiro",
-    "Fonte Cibernética 1": "⛲ Fonte Cibernética / Parque Aquilino Ribeiro",
-    "Av Europa-Tribunal 2": "⚖️ Tribunal de Viseu / Av. da Europa",
-    "Av Europa-Tribunal 1": "⚖️ Tribunal de Viseu / Av. da Europa",
-    "M Ferreira Figueiredo 1": "📍 Av. Manuel Ferreira Figueiredo",
-    "M Ferreira Figueiredo 2": "📍 Av. Manuel Ferreira Figueiredo",
-    "Pedro Henriques 1": "📍 D. Pedro Henriques",
-    "Pedro Henriques 2": "📍 D. Pedro Henriques",
-    "Escola Viriato 2": "🏫 Escola Secundária Viriato",
-    "Estrada Velha Abraveses": "🛣️ Abraveses (Estrada Velha)",
-    "Cava de Viriato 2": "🛡️ Cava de Viriato / Monumento",
-    "Cava de Viriato 1": "🛡️ Cava de Viriato / Monumento",
-    "Feira de S. Mateus 2": "🎡 Campo de Viriato / Feira de São Mateus",
-    "Feira de S Mateus 1": "🎡 Campo de Viriato / Feira de São Mateus",
-    "Porta dos Cavaleiros 1": "🏛️ Porta dos Cavaleiros / Centro Histórico",
-    "Porta dos Cavaleiros 2": "🏛️ Porta dos Cavaleiros / Centro Histórico",
-    "Mouzinho de Albuquerque": "📍 Mouzinho de Albuquerque",
-    "Capitão Silva Pereira": "📍 Capitão Silva Pereira",
-    "Cap S Pereira-S Cristina": "⛪ Capela de Santa Cristina",
-    "S Cristina-Cap S Pereira": "⛪ Capela de Santa Cristina",
-    "Cap S Pereira-Fontelo": "🌲 Parque do Fontelo",
-    "5 de Outubro 1": "🛍️ Rua 5 de Outubro",
-    "5 de Outubro 2": "🛍️ Rua 5 de Outubro",
-    "Rua Seminário": "⛪ Seminário Maior de Viseu",
-    "Dr Azeredo Perdigão 1": "🛍️ Shopping Palácio do Gelo (Acesso Norte)",
-    "Dr Azeredo Perdigão 2": "🛍️ Shopping Palácio do Gelo (Acesso Norte)",
-    "General Humberto Delgado": "📍 Av. General Humberto Delgado",
-    "Nuno Alvares Pereira": "📍 Rua Nuno Álvares Pereira",
-    "Escola João de Barros 1": "🏫 Escola Básica João de Barros",
-    "Escola João de Barros 2": "🏫 Escola Básica João de Barros",
-    "Manuel Silva Almeida 1": "📍 Manuel Silva Almeida",
-    "Manuel Silva Almeida 2": "📍 Manuel Silva Almeida",
-    "Paulo VI-25 Abril (Regresso)": "⛪ Av. Paulo VI",
-    "Escola Grão Vasco": "🏫 Escola Secundária Grão Vasco",
-    "Alexandre Lucena e Vale": "📍 Alexandre Lucena e Vale",
-    "10 de Junho-Cemitério 1": "🪦 Cemitério de Viseu / Av. 10 de Junho",
-    "10 de Junho-Cemitério 2": "🪦 Cemitério de Viseu / Av. 10 de Junho",
-    "Rei D Duarte-Mesuras": "📍 Rei D. Duarte / Mesuras",
     "Rei D Duarte-Hospital 2": "🏥 Próximo ao Hospital S. Teotónio",
     "Hospital S Teotónio": "🏥 Hospital de São Teotónio",
     "Interface Hospital (Chegada)": "🏥 Hospital de São Teotónio (Chegada)",
-    "Biblioteca-Loja Cidadão": "🏛️ Biblioteca Municipal / Loja do Cidadão",
-    "Rua Mendonça": "📍 Rua Mendonça",
-    "Praça de Goa": "📍 Praça de Goa",
-    "Estevão Lopes Morago 1": "📍 Estêvão Lopes Morago",
-    "António Esteves Correia": "📍 António Esteves Correia",
-    "Alves Martins": "🏫 Escola Alves Martins",
-    "Monsenhor Celso T Silva": "⛪ Monsenhor Celso T. Silva",
-    "Universidade Católica": "🎓 Universidade Católica Portuguesa",
-    "Largo Santo António": "⛪ Largo de Santo António",
-    "Av Bélgica-Alf Miguel 1": "📍 Av. da Bélgica",
-    "Avenida Bélgica 2": "📍 Av. da Bélgica",
-    "Avenida Europa": "⚖️ Av. da Europa",
-    "COMV 2": "🚌 Central de Camionagem / Rodoviária (COMV)",
-    "Cidade Aveiro": "📍 Cidade de Aveiro",
-    "Engrácia Carrilho-Igreja": "⛪ Engrácia Carrilho",
-    "Colégio Imac Conceição": "🏫 Colégio Imaculada Conceição",
-    "Madre Rita de Jesus 1": "🏫 Madre Rita de Jesus",
-    "M Rita Jesus-Escola 1": "🏫 Madre Rita de Jesus",
     "M Rita Jesus-C Saúde": "🏥 Centro de Saúde",
-    "M R Jesus-Int V Fontes": "📍 Madre Rita de Jesus",
+    "COMV 1": "🚌 Central de Camionagem / Rodoviária (COMV)",
+    "COMV 2": "🚌 Central de Camionagem / Rodoviária (COMV)",
+    "Dr Azeredo Perdigão 1": "🛍️ Shopping Palácio do Gelo (Acesso Norte)",
+    "Dr Azeredo Perdigão 2": "🛍️ Shopping Palácio do Gelo (Acesso Norte)",
     "Quinta da Alagoa": "🛍️ Shopping Palácio do Gelo (Acesso Sul / Alagoa)",
-    "Escola Aquilino Ribeiro": "🏫 Escola Básica Aquilino Ribeiro",
+    "Dr A Alves-C Comercial 1": "🛒 Supermercado Continente / Zona Comercial",
+    "5 de Outubro 1": "🛍️ Rua Comercial 5 de Outubro",
+    "5 de Outubro 2": "🛍️ Rua Comercial 5 de Outubro",
+    "Residências IPV": "🎓 Residências Universitárias IPV",
+    "Cidade Politécnica-IPV": "🎓 IPV - Instituto Politécnico de Viseu (Campus)",
+    "C Politécnica-Escola": "🎓 IPV - Instituto Politécnico de Viseu",
+    "Reg Infantaria-IPV 1": "🎖️ Regimento de Infantaria n.º 14 / IPV",
+    "Reg Infantaria-IPV 2": "🎖️ Regimento de Infantaria n.º 14 / IPV",
+    "Reg Infantaria-IPV 3": "🎖️ Regimento de Infantaria n.º 14 / IPV",
+    "Reg Infantaria": "🎖️ Regimento de Infantaria n.º 14",
+    "Universidade Católica": "🎓 Universidade Católica Portuguesa",
+    "Escola Viriato 2": "🏫 Escola Secundária Viriato",
+    "Escola Grão Vasco": "🏫 Escola Básica 2,3 Grão Vasco",
+    "Escola João de Barros 1": "🏫 Escola Básica João de Barros",
+    "Escola João de Barros 2": "🏫 Escola Básica João de Barros",
+    "Escola Aquilino Ribeiro": "🏫 Escola Secundária Aquilino Ribeiro",
+    "Colégio Imac Conceição": "🏫 Colégio da Imaculada Conceição",
+    "25 Abril-Liceu 1": "🏫 Escola Secundária Alves Martins (Liceu)",
+    "25 Abril-Liceu 2": "🏫 Escola Secundária Alves Martins (Liceu)",
+    "Alves Martins": "🏫 Escola Secundária Alves Martins (Liceu)",
+    "Madre Rita de Jesus 1": "🏫 Escola Madre Rita de Jesus",
+    "M Rita Jesus-Escola 1": "🏫 Escola Madre Rita de Jesus",
+    "Biblioteca-Loja Cidadão": "🏛️ Loja do Cidadão & Biblioteca Municipal",
+    "Av Europa-Tribunal 1": "⚖️ Tribunal Judicial de Viseu / Av. da Europa",
+    "Av Europa-Tribunal 2": "⚖️ Tribunal Judicial de Viseu / Av. da Europa",
+    "Avenida Europa": "⚖️ Tribunal Judicial de Viseu",
+    "Bombeiros Voluntários": "🚒 Quartel dos Bombeiros Voluntários",
+    "10 de Junho-Cemitério 1": "🪦 Cemitério Municipal de Viseu",
+    "10 de Junho-Cemitério 2": "🪦 Cemitério Municipal de Viseu",
+    "Cap S Pereira-Fontelo": "🌲 Parque do Fontelo",
+    "Monte Belo-Estádio 1": "⚽ Estádio Municipal do Fontelo",
+    "Monte Belo-Estádio 2": "⚽ Estádio Municipal do Fontelo",
+    "Rossio 1": "🌳 Praça da República (Rossio) / Centro Histórico",
+    "Rossio 2": "🌳 Praça da República (Rossio) / Centro Histórico",
+    "Feira de S Mateus 1": "🎡 Campo de Viriato / Feira de São Mateus",
+    "Feira de S. Mateus 2": "🎡 Campo de Viriato / Feira de São Mateus",
+    "Fonte Cibernética 1": "⛲ Fonte Cibernética / Parque Aquilino Ribeiro",
+    "Fonte Cibernética 2": "⛲ Fonte Cibernética / Parque Aquilino Ribeiro",
+    "Cava de Viriato 1": "🛡️ Cava de Viriato (Monumento)",
+    "Cava de Viriato 2": "🛡️ Cava de Viriato (Monumento)",
+    "Porta dos Cavaleiros 1": "🏛️ Porta dos Cavaleiros / Centro Histórico",
+    "Porta dos Cavaleiros 2": "🏛️ Porta dos Cavaleiros / Centro Histórico",
+    "N. S. Fátima-Igreja": "⛪ Igreja de Nossa Senhora de Fátima",
+    "Rua Seminário": "⛪ Seminário Maior de Viseu",
+    "Paulo VI-25 Abril": "⛪ Colégio Via Sacra / Av. Paulo VI",
+    "Cap S Pereira-S Cristina": "⛪ Capela de Santa Cristina",
+    "S Cristina-Cap S Pereira": "⛪ Capela de Santa Cristina",
+    "Largo Santo António": "⛪ Largo de Santo António",
+    "Engrácia Carrilho-Igreja": "⛪ Igreja Engrácia Carrilho",
+    "J Maria Escrivá-Hotel 1": "🏨 Zona Hoteleira",
+    "J Maria Escrivá-Hotel 2": "🏨 Zona Hoteleira",
 }
 
 def format_stop_label(stop_name):
@@ -843,59 +801,68 @@ with tab_mapa:
         estilo_mapa = st.selectbox(
             "🗺️ Escolha o Estilo de Visualização do Mapa",
             [
-                "🗺️ OpenStreetMap (Detalhado - Estilo Google Maps / Ruas de Viseu)",
-                "🏙️ CartoDB Voyager (Claro & Detalhado)",
-                "🏢 CartoDB Positron (Claro Minimalista)",
-                "🌙 CartoDB Dark (Modo Noturno)"
+                "🗺️ Esri WorldStreetMap (Detalhado Estilo Google Maps)",
+                "🌿 OpenStreetMap Standard (Oficial)",
+                "🏖️ OpenStreetMap HOT (Alta Visibilidade & Cores)",
+                "🛰️ Esri Satélite (Visão Aérea / Fotografia Real)"
             ],
             index=0,
             key="map_style_select"
         )
     
-    proto_str = "http" + "s://"
+    p_str = "https://"
     tile_providers = {
-        "🗺️ OpenStreetMap (Detalhado - Estilo Google Maps / Ruas de Viseu)": (
-            proto_str + "{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        "🗺️ Esri WorldStreetMap (Detalhado Estilo Google Maps)": (
+            p_str + "server." + "arcgisonline" + ".com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}",
+            "Esri — Source: Esri, DeLorme, NAVTEQ, USGS, Intermap, iPC, NRCAN, METI, TomTom, 2012"
+        ),
+        "🌿 OpenStreetMap Standard (Oficial)": (
+            p_str + "tile.openstreetmap.org/{z}/{x}/{y}.png",
             "&copy; OpenStreetMap contributors"
         ),
-        "🏙️ CartoDB Voyager (Claro & Detalhado)": (
-            proto_str + "a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png",
-            "&copy; OpenStreetMap &copy; CARTO"
+        "🏖️ OpenStreetMap HOT (Alta Visibilidade & Cores)": (
+            p_str + "a.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png",
+            "&copy; OpenStreetMap contributors, HOT style"
         ),
-        "🏢 CartoDB Positron (Claro Minimalista)": (
-            proto_str + "a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png",
-            "&copy; OpenStreetMap &copy; CARTO"
-        ),
-        "🌙 CartoDB Dark (Modo Noturno)": (
-            proto_str + "a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png",
-            "&copy; OpenStreetMap &copy; CARTO"
+        "🛰️ Esri Satélite (Visão Aérea / Fotografia Real)": (
+            p_str + "server." + "arcgisonline" + ".com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+            "Esri — Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP"
         )
     }
     
     tile_url, tile_attr = tile_providers.get(
         estilo_mapa, 
-        tile_providers["🗺️ OpenStreetMap (Detalhado - Estilo Google Maps / Ruas de Viseu)"]
+        tile_providers["🗺️ Esri WorldStreetMap (Detalhado Estilo Google Maps)"]
     )
     
     map_stops = st.session_state["stops_c1"] if target_map_line == "C1" else st.session_state["stops_c2"]
     stop_names_list = [s[0] for s in map_stops]
     
-    # Initialize Folium Map
-    m = folium.Map(location=[40.6600, -7.9120], zoom_start=14, tiles=None)
-    folium.TileLayer(tiles=tile_url, attr=tile_attr, name=estilo_mapa).add_to(m)
+    # Initialize Folium Map with base tiles directly attached to base map pane
+    m = folium.Map(
+        location=[40.6600, -7.9120], 
+        zoom_start=14, 
+        tiles=tile_url, 
+        attr=tile_attr
+    )
+
+    # Auto-fit map bounds to cover all stops of the selected line
+    lats = [s[2] for s in map_stops]
+    lons = [s[3] for s in map_stops]
+    if lats and lons:
+        m.fit_bounds([[min(lats), min(lons)], [max(lats), max(lons)]], padding=(25, 25))
     
-    # Draw full circuit path (dashed light blue)
+    # 1. Full Line Circuit Path (Solid Blue, clearly visible on top of tiles)
     full_path_coords = [[s[2], s[3]] for s in map_stops]
     folium.PolyLine(
         full_path_coords,
-        color="#3388ff",
-        weight=4,
-        opacity=0.4,
-        dash_array="6, 6",
-        tooltip=f"Circuito Completo - Linha {target_map_line}"
+        color="#0066FF",
+        weight=5,
+        opacity=0.75,
+        tooltip=f"Circuito Completo da Linha {target_map_line}"
     ).add_to(m)
 
-    # Highlight active travel route segment (Origem -> Destino) if both exist on this line
+    # 2. Highlighted Travel Segment (Origem -> Destino) in bold RED on top
     has_orig = origem in stop_names_list
     has_dest = destino in stop_names_list
 
@@ -911,16 +878,16 @@ with tab_mapa:
         sub_coords = [[s[2], s[3]] for s in sub_stops]
         folium.PolyLine(
             sub_coords,
-            color="#E60000",
-            weight=7,
-            opacity=0.9,
+            color="#FF0000",
+            weight=8,
+            opacity=0.95,
             tooltip=f"🚀 Percurso Selecionado: {origem} ➔ {destino}"
         ).add_to(m)
         st.success(f"📍 **Percurso Destacado a Vermelho:** {origem} ➔ {destino} (Linha {target_map_line})")
     elif has_orig or has_dest:
         st.info(f"ℹ️ A paragem de {'Origem' if has_orig else 'Destino'} encontra-se nesta linha. Alterne para a outra linha para ver o percurso completo.")
 
-    # Render markers for stops
+    # 3. Render Markers for Stops
     for s_name, s_off, s_lat, s_lon in map_stops:
         ref_text = PONTOS_REFERENCIA.get(s_name, s_name)
         
@@ -928,25 +895,38 @@ with tab_mapa:
             icon = folium.Icon(color="green", icon="play", prefix="fa")
             popup_html = f"<div style='font-family:sans-serif;'><b>🟢 ORIGEM: {s_name}</b><br><small>{ref_text}</small></div>"
             tooltip_txt = f"🟢 Origem: {s_name}"
+            folium.Marker(
+                location=[s_lat, s_lon],
+                popup=folium.Popup(popup_html, max_width=250),
+                tooltip=tooltip_txt,
+                icon=icon
+            ).add_to(m)
         elif s_name == destino:
             icon = folium.Icon(color="red", icon="flag", prefix="fa")
             popup_html = f"<div style='font-family:sans-serif;'><b>🔴 DESTINO: {s_name}</b><br><small>{ref_text}</small></div>"
             tooltip_txt = f"🔴 Destino: {s_name}"
+            folium.Marker(
+                location=[s_lat, s_lon],
+                popup=folium.Popup(popup_html, max_width=250),
+                tooltip=tooltip_txt,
+                icon=icon
+            ).add_to(m)
         else:
-            icon = folium.Icon(color="blue", icon="bus", prefix="fa")
+            # High-visibility circle markers for intermediate stops
             popup_html = f"<div style='font-family:sans-serif;'><b>🚌 Paragem: {s_name}</b><br><small>{ref_text}</small></div>"
-            tooltip_txt = f"🚌 {s_name}"
-
-        folium.Marker(
-            location=[s_lat, s_lon],
-            popup=folium.Popup(popup_html, max_width=250),
-            tooltip=tooltip_txt,
-            icon=icon
-        ).add_to(m)
+            folium.CircleMarker(
+                location=[s_lat, s_lon],
+                radius=6,
+                color="#0044AA",
+                fill=True,
+                fill_color="#3399FF",
+                fill_opacity=0.9,
+                popup=folium.Popup(popup_html, max_width=250),
+                tooltip=f"🚌 Paragem: {s_name}"
+            ).add_to(m)
 
     st_html(m.get_root().render(), height=540)
-    st.caption("🟢 Verde: Paragem de Origem | 🔴 Vermelho: Paragem de Destino | ➖🔴 Linha Vermelha: Percurso Selecionado | ➖🔵 Linha Tracejada: Circuito Completo")
-
+    st.caption("🟢 Verde: Paragem de Origem | 🔴 Vermelho: Paragem de Destino | ➖🔴 Linha Vermelha: Percurso Selecionado | ➖🔵 Linha Azul: Circuito Completo")
 
 with tab_detalhes:
     st.subheader("📱 Visão Mobile Compacta")
@@ -966,4 +946,4 @@ with tab_detalhes:
                 st.write(f"• **Partida do Terminal:** {trip['Saída Terminal']}")
 
 st.markdown("---")
-st.caption("MUViseu Circulares v14 - Sistema Inteligente de Horários & Mobilidade Urbana de Viseu.")
+st.caption("MUViseu Circulares v15 - Sistema Inteligente de Horários & Mobilidade Urbana de Viseu.")
