@@ -781,21 +781,43 @@ with tab_consultar:
 with tab_mapa:
     st.subheader("🗺️ Mapa do Percurso Urbano")
     
+    # 1. Build a master map of all stop names -> (lat, lon)
+    all_stops_dict = {}
+    for s_name, s_off, s_lat, s_lon in st.session_state["stops_c1"] + st.session_state["stops_c2"]:
+        all_stops_dict[s_name] = (s_lat, s_lon)
+
+    orig_coords = all_stops_dict.get(origem)
+    dest_coords = all_stops_dict.get(destino)
+
+    stops_c1_names = [s[0] for s in st.session_state["stops_c1"]]
+    stops_c2_names = [s[0] for s in st.session_state["stops_c2"]]
+
+    c1_has_orig = origem in stops_c1_names
+    c1_has_dest = destino in stops_c1_names
+    c2_has_orig = origem in stops_c2_names
+    c2_has_dest = destino in stops_c2_names
+
+    # Determine automatic default line for map
+    if c1_has_orig and c1_has_dest and not (c2_has_orig and c2_has_dest):
+        auto_line = "C1"
+    elif c2_has_orig and c2_has_dest and not (c1_has_orig and c1_has_dest):
+        auto_line = "C2"
+    elif modo_linha == "Linha C1":
+        auto_line = "C1"
+    elif modo_linha == "Linha C2":
+        auto_line = "C2"
+    else:
+        auto_line = "C1"
+
     col_map_line, col_map_style = st.columns([1, 1])
     with col_map_line:
-        if modo_linha == "Linha C1":
-            target_map_line = "C1"
-            st.info("🚌 Exibindo circuito da **Linha C1**")
-        elif modo_linha == "Linha C2":
-            target_map_line = "C2"
-            st.info("🚌 Exibindo circuito da **Linha C2**")
-        else:
-            target_map_line = st.radio(
-                "Escolha a Linha para Visualizar no Mapa:",
-                ["C1", "C2"],
-                horizontal=True,
-                key="map_line_select"
-            )
+        target_map_line = st.radio(
+            "Escolha a Linha para Visualizar no Mapa:",
+            ["C1", "C2"],
+            index=0 if auto_line == "C1" else 1,
+            horizontal=True,
+            key="map_line_select"
+        )
             
     with col_map_style:
         estilo_mapa = st.selectbox(
@@ -838,7 +860,7 @@ with tab_mapa:
     map_stops = st.session_state["stops_c1"] if target_map_line == "C1" else st.session_state["stops_c2"]
     stop_names_list = [s[0] for s in map_stops]
     
-    # Initialize Folium Map with base tiles directly attached to base map pane
+    # Initialize Folium Map
     m = folium.Map(
         location=[40.6600, -7.9120], 
         zoom_start=14, 
@@ -846,27 +868,31 @@ with tab_mapa:
         attr=tile_attr
     )
 
-    # Auto-fit map bounds to cover all stops of the selected line
-    lats = [s[2] for s in map_stops]
-    lons = [s[3] for s in map_stops]
+    # Collect all points to auto-fit map bounds
+    fit_points = [[s[2], s[3]] for s in map_stops]
+    if orig_coords: fit_points.append([orig_coords[0], orig_coords[1]])
+    if dest_coords: fit_points.append([dest_coords[0], dest_coords[1]])
+
+    lats = [p[0] for p in fit_points]
+    lons = [p[1] for p in fit_points]
     if lats and lons:
         m.fit_bounds([[min(lats), min(lons)], [max(lats), max(lons)]], padding=(25, 25))
     
-    # 1. Full Line Circuit Path (Solid Blue, clearly visible on top of tiles)
+    # 1. Full Line Circuit Path (Dashed/Solid Blue)
     full_path_coords = [[s[2], s[3]] for s in map_stops]
     folium.PolyLine(
         full_path_coords,
         color="#0066FF",
         weight=5,
-        opacity=0.75,
+        opacity=0.7,
         tooltip=f"Circuito Completo da Linha {target_map_line}"
     ).add_to(m)
 
-    # 2. Highlighted Travel Segment (Origem -> Destino) in bold RED on top
-    has_orig = origem in stop_names_list
-    has_dest = destino in stop_names_list
+    # 2. Highlighted Travel Segment (Origem -> Destino)
+    has_orig_on_line = origem in stop_names_list
+    has_dest_on_line = destino in stop_names_list
 
-    if has_orig and has_dest:
+    if has_orig_on_line and has_dest_on_line:
         orig_idx = stop_names_list.index(origem)
         dest_idx = stop_names_list.index(destino)
         
@@ -881,53 +907,95 @@ with tab_mapa:
             color="#FF0000",
             weight=8,
             opacity=0.95,
-            tooltip=f"🚀 Percurso Selecionado: {origem} ➔ {destino}"
+            tooltip=f"🚀 Percurso Selecionado na Linha {target_map_line}: {origem} ➔ {destino}"
         ).add_to(m)
         st.success(f"📍 **Percurso Destacado a Vermelho:** {origem} ➔ {destino} (Linha {target_map_line})")
-    elif has_orig or has_dest:
-        st.info(f"ℹ️ A paragem de {'Origem' if has_orig else 'Destino'} encontra-se nesta linha. Alterne para a outra linha para ver o percurso completo.")
+    elif orig_coords and dest_coords:
+        # If origin and destination are on different lines, draw direct connecting segment
+        folium.PolyLine(
+            [[orig_coords[0], orig_coords[1]], [dest_coords[0], dest_coords[1]]],
+            color="#FF0000",
+            weight=6,
+            opacity=0.9,
+            dash_array="8, 8",
+            tooltip=f"🚀 Percurso entre Linhas: {origem} ➔ {destino}"
+        ).add_to(m)
+        st.info(f"📍 **Ligação entre Linhas:** {origem} ➔ {destino}. (Origem e Destino em linhas diferentes; alterne a linha no seletor para ver o circuito correspondente).")
 
     # 3. Render Markers for Stops
+    rendered_orig_marker = False
+    rendered_dest_marker = False
+
     for s_name, s_off, s_lat, s_lon in map_stops:
-        ref_text = PONTOS_REFERENCIA.get(s_name, s_name)
+        ref_text = PONTOS_REFERENCIA.get(s_name, "")
+        ref_label = f"<br><small>{ref_text}</small>" if ref_text else ""
         
         if s_name == origem:
+            rendered_orig_marker = True
             icon = folium.Icon(color="green", icon="play", prefix="fa")
-            popup_html = f"<div style='font-family:sans-serif;'><b>🟢 ORIGEM: {s_name}</b><br><small>{ref_text}</small></div>"
+            popup_html = f"<div style='font-family:sans-serif;'><b>🟢 ORIGEM: {s_name}</b>{ref_label}</div>"
             tooltip_txt = f"🟢 Origem: {s_name}"
             folium.Marker(
                 location=[s_lat, s_lon],
                 popup=folium.Popup(popup_html, max_width=250),
                 tooltip=tooltip_txt,
-                icon=icon
+                icon=icon,
+                z_index_offset=1000
             ).add_to(m)
-        elif s_name == destino:
+        elif s_name == destino and origem != destino:
+            rendered_dest_marker = True
             icon = folium.Icon(color="red", icon="flag", prefix="fa")
-            popup_html = f"<div style='font-family:sans-serif;'><b>🔴 DESTINO: {s_name}</b><br><small>{ref_text}</small></div>"
+            popup_html = f"<div style='font-family:sans-serif;'><b>🔴 DESTINO: {s_name}</b>{ref_label}</div>"
             tooltip_txt = f"🔴 Destino: {s_name}"
             folium.Marker(
                 location=[s_lat, s_lon],
                 popup=folium.Popup(popup_html, max_width=250),
                 tooltip=tooltip_txt,
-                icon=icon
+                icon=icon,
+                z_index_offset=1000
             ).add_to(m)
         else:
-            # High-visibility circle markers for intermediate stops
-            popup_html = f"<div style='font-family:sans-serif;'><b>🚌 Paragem: {s_name}</b><br><small>{ref_text}</small></div>"
+            popup_html = f"<div style='font-family:sans-serif;'><b>🚌 Paragem: {s_name}</b>{ref_label}</div>"
             folium.CircleMarker(
                 location=[s_lat, s_lon],
-                radius=6,
+                radius=5,
                 color="#0044AA",
                 fill=True,
                 fill_color="#3399FF",
-                fill_opacity=0.9,
+                fill_opacity=0.85,
                 popup=folium.Popup(popup_html, max_width=250),
                 tooltip=f"🚌 Paragem: {s_name}"
             ).add_to(m)
 
+    # 4. Guarantee Origin & Destination Markers if not rendered by the active line loop
+    if orig_coords and not rendered_orig_marker:
+        ref_text = PONTOS_REFERENCIA.get(origem, "")
+        ref_label = f"<br><small>{ref_text}</small>" if ref_text else ""
+        icon = folium.Icon(color="green", icon="play", prefix="fa")
+        popup_html = f"<div style='font-family:sans-serif;'><b>🟢 ORIGEM: {origem}</b>{ref_label}</div>"
+        folium.Marker(
+            location=[orig_coords[0], orig_coords[1]],
+            popup=folium.Popup(popup_html, max_width=250),
+            tooltip=f"🟢 Origem: {origem}",
+            icon=icon,
+            z_index_offset=1000
+        ).add_to(m)
+
+    if dest_coords and not rendered_dest_marker and origem != destino:
+        ref_text = PONTOS_REFERENCIA.get(destino, "")
+        ref_label = f"<br><small>{ref_text}</small>" if ref_text else ""
+        icon = folium.Icon(color=red, icon=flag, prefix=fa)
+        popup_html = f"<div style='font-family:sans-serif;'><b>🔴 DESTINO: {destino}</b>{ref_label}</div>"
+        folium.Marker(
+            location=[dest_coords[0], dest_coords[1]],
+            popup=folium.Popup(popup_html, max_width=250),
+            tooltip=f"🔴 Destino: {destino}",
+            icon=icon,
+            z_index_offset=1000
+        ).add_to(m)
+
     st_html(m.get_root().render(), height=540)
     st.caption("🟢 Verde: Paragem de Origem | 🔴 Vermelho: Paragem de Destino | ➖🔴 Linha Vermelha: Percurso Selecionado | ➖🔵 Linha Azul: Circuito Completo")
-
 with tab_detalhes:
     st.subheader("📱 Visão Mobile Compacta")
     st.markdown("Visualização otimizada em cartões interativos para ecrãs de smartphone.")
