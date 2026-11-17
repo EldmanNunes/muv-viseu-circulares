@@ -2,9 +2,7 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime, timedelta, time, date
 import re
-import pydeck as pdk
 from fpdf import FPDF
-import io
 import json
 import os
 import pdfplumber
@@ -240,17 +238,23 @@ def format_stop_label(stop_name):
 
 # --- PERSISTENCE HELPERS ---
 def load_persisted_data():
-    if os.path.exists(CACHE_FILE):
-        try:
-            with open(CACHE_FILE, "r", encoding="utf-8") as f:
-                data = json.load(f)
-                return data
-        except Exception:
-            pass
-    return None
+    """Carrega dados persistidos; ficheiros inválidos não interrompem a aplicação."""
+    if not os.path.exists(CACHE_FILE):
+        return None
+    try:
+        with open(CACHE_FILE, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        if not isinstance(data, dict):
+            return None
+        return data
+    except (OSError, json.JSONDecodeError, UnicodeDecodeError):
+        return None
+
 
 def save_persisted_data():
+    """Guarda os dados de forma atómica para evitar JSON truncado."""
     data = {
+        "schema_version": 1,
         "stops_c1": st.session_state.get("stops_c1", DEFAULT_STOPS_C1),
         "stops_c2": st.session_state.get("stops_c2", DEFAULT_STOPS_C2),
         "dep_dias_c1": st.session_state.get("dep_dias_c1", DEFAULT_DEPARTURES_DIAS_UTEIS),
@@ -263,8 +267,19 @@ def save_persisted_data():
         "version_date": st.session_state.get("version_date", DEFAULT_VERSION_DATE),
         "version_label": st.session_state.get("version_label", DEFAULT_VERSION_LABEL),
     }
-    with open(CACHE_FILE, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
+    temp_file = CACHE_FILE + ".tmp"
+    try:
+        with open(temp_file, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+            f.flush()
+            os.fsync(f.fileno())
+        os.replace(temp_file, CACHE_FILE)
+    finally:
+        if os.path.exists(temp_file):
+            try:
+                os.remove(temp_file)
+            except OSError:
+                pass
 
 # --- INITIALIZE SESSION STATE ---
 cached = load_persisted_data()
@@ -314,43 +329,36 @@ def extract_version_date_from_text(text):
         y, m, d = map(int, match_iso.groups())
         return date(y, m, d), f"{d}/{m}/{y}"
         
-    return date(2026, 3, 1), "1 de Março de 2026"
+    return None, None
 
 def parse_pdf_schedules(pdf_file):
+    """Extrai metadados sem inventar datas, paragens ou minutos de percurso.
+
+    Os PDFs MUV podem ter tabelas com várias colunas de viagens. Sem uma
+    estrutura inequívoca, a importação é bloqueada para evitar corromper dados.
+    """
     parsed_line = None
     parsed_stops = []
     parsed_departures = []
+    full_text_parts = []
 
-    with pdfplumber.open(pdf_file) as pdf:
-        full_text = ""
-        for page in pdf.pages:
-            text = page.extract_text() or ""
-            full_text += text + "\n"
-            tables = page.extract_tables()
-            for table in tables:
-                for row in table:
-                    clean_row = [c.strip() for c in row if c and c.strip()]
-                    if len(clean_row) >= 2:
-                        stop_candidate = clean_row[0]
-                        if ":" in clean_row[1] and len(clean_row[1]) == 5:
-                            if stop_candidate not in [s[0] for s in parsed_stops]:
-                                offset = len(parsed_stops) * 2
-                                coords = MASTER_STOP_COORDS.get(stop_candidate, (40.6568 + len(parsed_stops)*0.0003, -7.9128 + len(parsed_stops)*0.0003))
-                                parsed_stops.append((stop_candidate, offset, coords[0], coords[1]))
-
-        if "C1" in full_text or "Linha C1" in full_text:
-            parsed_line = "C1"
-        elif "C2" in full_text or "Linha C2" in full_text:
-            parsed_line = "C2"
-
-        import re
-        times = re.findall(r'\b(?:[01]\d|2[0-3]):[0-5]\d\b', full_text)
-        if times:
-            unique_times = sorted(list(set(times)))
-            if len(unique_times) >= 5:
-                parsed_departures = unique_times
+    try:
+        with pdfplumber.open(pdf_file) as pdf:
+            for page in pdf.pages:
+                full_text_parts.append(page.extract_text() or "")
+                if parsed_line is None:
+                    page_text = full_text_parts[-1]
+                    line_match = re.search(r"\\b(?:LINHA\\s*)?(C[12])\\b", page_text, re.IGNORECASE)
+                    if line_match:
+                        parsed_line = line_match.group(1).upper()
+        full_text = "\\n".join(full_text_parts)
+    except Exception:
+        return None, [], [], None, None
 
     pdf_date_obj, pdf_date_label = extract_version_date_from_text(full_text)
+
+    # Do not interpret every clock value in a PDF as a terminal departure:
+    # these values may represent intermediate stops or notes.
     return parsed_line, parsed_stops, parsed_departures, pdf_date_obj, pdf_date_label
 
 # --- HELPER FUNCTIONS ---
@@ -360,7 +368,7 @@ def str_to_time_delta(time_str: str) -> timedelta:
 
 def format_timedelta(td: timedelta) -> str:
     total_seconds = int(td.total_seconds())
-    hours = (total_seconds // 3600) % 24
+    hours = total_seconds // 3600
     minutes = (total_seconds % 3600) // 60
     return f"{hours:02d}:{minutes:02d}"
 
@@ -389,7 +397,7 @@ def calculate_next_trips(line_code, tipo_dia, orig_stop, dest_stop, ref_time_obj
     orig_offset = stop_dict[orig_stop]
     dest_offset = stop_dict[dest_stop]
 
-    if dest_offset > orig_offset:
+    if dest_offset >= orig_offset:
         duration_min = dest_offset - orig_offset
         via_terminal = False
     else:
@@ -400,7 +408,12 @@ def calculate_next_trips(line_code, tipo_dia, orig_stop, dest_stop, ref_time_obj
 
     results = []
     for dep_str in departures_base:
-        base_td = str_to_time_delta(dep_str)
+        try:
+            base_td = str_to_time_delta(dep_str)
+        except (TypeError, ValueError):
+            continue
+        if base_td < timedelta(0) or base_td >= timedelta(days=1):
+            continue
         orig_time_td = base_td + timedelta(minutes=orig_offset)
         dest_time_td = orig_time_td + timedelta(minutes=duration_min)
 
@@ -465,31 +478,49 @@ def create_pdf_report(line_code, tipo_dia, orig_stop, dest_stop, trips):
     return pdf.output()
 
 def create_ics_calendar(line_code, orig_stop, dest_stop, trip_time_str, dest_time_str):
-    today = datetime.now().strftime("%Y%m%d")
-    h_orig, m_orig = trip_time_str.split(":")
-    h_dest, m_dest = dest_time_str.split(":")
-    
-    dtstart = f"{today}T{h_orig}{m_orig}00"
-    dtend = f"{today}T{h_dest}{m_dest}00"
-    
+    """Gera evento iCalendar com viragem de dia e escape de caracteres."""
+    base_date = datetime.now().date()
+
+    def parse_clock(value):
+        hours, minutes = map(int, value.split(":"))
+        return datetime.combine(base_date, time.min) + timedelta(hours=hours, minutes=minutes)
+
+    def ics_escape(value):
+        slash = chr(92)
+        value = str(value).replace(slash, slash + slash)
+        value = value.replace(";", slash + ";").replace(",", slash + ",")
+        return value.replace(chr(13), "").replace(chr(10), slash + "n")
+
+    start_dt = parse_clock(trip_time_str)
+    end_dt = parse_clock(dest_time_str)
+    if end_dt <= start_dt:
+        end_dt += timedelta(days=1)
+
+    summary = ics_escape(f"Autocarro MUV {line_code}: {orig_stop} -> {dest_stop}")
+    description_text = (f"Viagem de autocarro MUV Viseu da {line_code}." + chr(10)
+                        + f"Partida: {trip_time_str}" + chr(10) + f"Chegada: {dest_time_str}")
+    description = ics_escape(description_text)
+    location = ics_escape(f"{orig_stop}, Viseu")
+
     ics_content = f"""BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//MUV Viseu//Horarios Bus//PT
 BEGIN:VEVENT
-SUMMARY:Autocarro MUV {line_code}: {orig_stop} -> {dest_stop}
-DESCRIPTION:Viagem de autocarro MUV Viseu da {line_code}.\\nPartida: {trip_time_str}\\nChegada: {dest_time_str}
-LOCATION:{orig_stop}, Viseu
-DTSTART:{dtstart}
-DTEND:{dtend}
+SUMMARY:{summary}
+DESCRIPTION:{description}
+LOCATION:{location}
+DTSTART:{start_dt.strftime('%Y%m%dT%H%M%S')}
+DTEND:{end_dt.strftime('%Y%m%dT%H%M%S')}
 END:VEVENT
 END:VCALENDAR"""
     return ics_content.encode("utf-8")
+
 
 # --- USER INTERFACE ---
 st.title("🚌 MUViseu Circulares")
 st.info(f"📅 **Versão dos Horários em Vigor:** {st.session_state.get('version_label', '1 de Março de 2026')} *(Fonte Oficial MUV)*")
 
-st.markdown("Aplicação interativa em Python e Streamlit com **Comparador Inteligente C1 vs C2**, **Gestor de Favoritos**, **mapa PyDeck**, **PDF upload**, e **exportação .ICS/PDF/CSV**.")
+st.markdown("Aplicação interativa em Python e Streamlit com **Comparador Inteligente C1 vs C2**, **Gestor de Favoritos**, **mapa interativo Folium**, **PDF upload**, e **exportação .ICS/PDF/CSV**.")
 
 # Sidebar Settings
 st.sidebar.header("⚙️ Parâmetros da Viagem")
@@ -553,6 +584,13 @@ if st.sidebar.button("⭐ Guardar este Percurso nos Favoritos"):
 
 if st.session_state["favorites"]:
     st.sidebar.caption("Clique num favorito para carregar instantaneamente:")
+    valid_favorites = [
+        fav for fav in st.session_state["favorites"]
+        if isinstance(fav, dict)
+        and fav.get("origem") in available_stops
+        and fav.get("destino") in available_stops
+    ]
+    st.session_state["favorites"] = valid_favorites
     for idx, fav in enumerate(st.session_state["favorites"]):
         col_f1, col_f2 = st.sidebar.columns([4, 1])
         with col_f1:
@@ -584,16 +622,21 @@ if uploaded_pdf is not None:
     except Exception:
         curr_date_obj = date(2026, 3, 1)
 
-    is_newer = pdf_date_obj > curr_date_obj
-    is_same = pdf_date_obj == curr_date_obj
-    is_older = pdf_date_obj < curr_date_obj
+    is_newer = pdf_date_obj is not None and pdf_date_obj > curr_date_obj
+    is_same = pdf_date_obj is not None and pdf_date_obj == curr_date_obj
+    is_older = pdf_date_obj is not None and pdf_date_obj < curr_date_obj
+    pdf_import_valid = pdf_date_obj is not None and bool(new_stops or new_deps)
 
     with st.sidebar.expander("🔍 Pré-visualização e Validação do PDF", expanded=True):
         st.write(f"**Linha Identificada:** {target_line}")
-        st.write(f"**Data no PDF:** `{pdf_date_label}`")
+        st.write(f"**Data no PDF:** `{pdf_date_label or 'Não identificada'}`")
         st.write(f"**Data em Vigor na App:** `{st.session_state['version_label']}`")
         
-        if is_older:
+        if pdf_date_obj is None:
+            st.error("⛔ Não foi possível identificar uma data de entrada em vigor explícita. A importação foi bloqueada.")
+        elif not pdf_import_valid:
+            st.warning("⚠️ O PDF não contém uma estrutura de horários/paragens reconhecida com segurança. Nenhum dado será importado automaticamente.")
+        elif is_older:
             st.error(f"⛔ **PDF Desatualizado!** Os horários deste PDF ({pdf_date_label}) são anteriores à versão em vigor ({st.session_state['version_label']}).")
         elif is_same:
             st.info(f"ℹ️ **Mesma Versão:** O PDF tem a mesma data da versão ativa ({pdf_date_label}).")
@@ -603,8 +646,8 @@ if uploaded_pdf is not None:
         st.write(f"**Paragens Detetadas:** {len(new_stops)}")
         st.write(f"**Horários Detetados:** {len(new_deps)}")
 
-    if is_older:
-        st.sidebar.warning("⚠️ Importação bloqueada para proteger a versão mais recente em vigor.")
+    if not pdf_import_valid or is_older:
+        st.sidebar.warning("⚠️ Importação automática bloqueada: dados insuficientes ou PDF desatualizado.")
     else:
         if st.sidebar.button("✅ Confirmar e Importar PDF"):
             if new_stops:
@@ -647,6 +690,10 @@ tab_consultar, tab_mapa, tab_detalhes = st.tabs([
     "📱 Resumo Compacto / Mobile"
 ])
 
+# Sempre inicializadas: a vista mobile também é renderizada quando origem == destino.
+trips_c1, trips_c2 = [], []
+best_line = None
+
 with tab_consultar:
     st.subheader(f"📍 Percurso: {origem} ➔ {destino}")
     ref_orig = PONTOS_REFERENCIA.get(origem, "")
@@ -679,7 +726,7 @@ with tab_consultar:
                 arr_c2 = trips_c2[0]["Chegada TD"] if trips_c2 else None
                 
                 if arr_c1 and arr_c2:
-                    diff_min = int(abs((arr_c1.total_seconds() - arr_c2.total_seconds()) // 60))
+                    diff_min = int(abs((arr_c1 - arr_c2).total_seconds()) // 60)
                     if arr_c1 < arr_c2:
                         best_line = "C1"
                         time_saved = diff_min
@@ -1010,8 +1057,13 @@ with tab_detalhes:
     st.subheader("📱 Visão Mobile Compacta")
     st.markdown("Visualização otimizada em cartões interativos para ecrãs de smartphone.")
     
-    active_trips = trips_c1 if (modo_linha != "Linha C2" and trips_c1) else trips_c2
-    active_line_name = "C1" if (modo_linha != "Linha C2" and trips_c1) else "C2"
+    if modo_linha == "⚡ Comparar C1 e C2 (Mais Rápida)" and best_line in ("C1", "C2"):
+        active_line_name = best_line
+        active_trips = trips_c1 if best_line == "C1" else trips_c2
+    elif modo_linha == "Linha C2":
+        active_line_name, active_trips = "C2", trips_c2
+    else:
+        active_line_name, active_trips = "C1", trips_c1
     
     if origem != destino and active_trips:
         st.write(f"**Exibindo viagem na Linha {active_line_name}:**")
@@ -1024,4 +1076,4 @@ with tab_detalhes:
                 st.write(f"• **Partida do Terminal:** {trip['Saída Terminal']}")
 
 st.markdown("---")
-st.caption("MUViseu Circulares v18 - Sistema Inteligente de Horários & Mobilidade Urbana de Viseu.")
+st.caption("MUViseu Circulares v19 - Sistema Inteligente de Horários & Mobilidade Urbana de Viseu.")
