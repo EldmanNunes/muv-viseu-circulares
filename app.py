@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
-from datetime import datetime, timedelta, time
+from datetime import datetime, timedelta, time, date
+import re
 import pydeck as pdk
 from fpdf import FPDF
 import io
@@ -292,8 +293,10 @@ def save_persisted_data():
         "stops_c2": st.session_state.get("stops_c2", DEFAULT_STOPS_C2),
         "dep_dias_c1": st.session_state.get("dep_dias_c1", DEFAULT_DEPARTURES_DIAS_UTEIS),
         "dep_sab_c1": st.session_state.get("dep_sab_c1", DEFAULT_DEPARTURES_SABADOS),
+        "dep_dom_c1": st.session_state.get("dep_dom_c1", DEFAULT_DEPARTURES_DOMINGOS),
         "dep_dias_c2": st.session_state.get("dep_dias_c2", DEFAULT_DEPARTURES_DIAS_UTEIS),
         "dep_sab_c2": st.session_state.get("dep_sab_c2", DEFAULT_DEPARTURES_SABADOS),
+        "dep_dom_c2": st.session_state.get("dep_dom_c2", DEFAULT_DEPARTURES_DOMINGOS),
         "favorites": st.session_state.get("favorites", []),
         "version_date": st.session_state.get("version_date", DEFAULT_VERSION_DATE),
         "version_label": st.session_state.get("version_label", DEFAULT_VERSION_LABEL),
@@ -310,6 +313,8 @@ if cached:
     if "dep_sab_c1" not in st.session_state: st.session_state["dep_sab_c1"] = cached.get("dep_sab_c1", DEFAULT_DEPARTURES_SABADOS)
     if "dep_dias_c2" not in st.session_state: st.session_state["dep_dias_c2"] = cached.get("dep_dias_c2", DEFAULT_DEPARTURES_DIAS_UTEIS)
     if "dep_sab_c2" not in st.session_state: st.session_state["dep_sab_c2"] = cached.get("dep_sab_c2", DEFAULT_DEPARTURES_SABADOS)
+    if "dep_dom_c1" not in st.session_state: st.session_state["dep_dom_c1"] = cached.get("dep_dom_c1", DEFAULT_DEPARTURES_DOMINGOS)
+    if "dep_dom_c2" not in st.session_state: st.session_state["dep_dom_c2"] = cached.get("dep_dom_c2", DEFAULT_DEPARTURES_DOMINGOS)
     if "favorites" not in st.session_state: st.session_state["favorites"] = cached.get("favorites", [])
     if "version_date" not in st.session_state: st.session_state["version_date"] = cached.get("version_date", DEFAULT_VERSION_DATE)
     if "version_label" not in st.session_state: st.session_state["version_label"] = cached.get("version_label", DEFAULT_VERSION_LABEL)
@@ -659,15 +664,17 @@ if st.sidebar.button("🔄 Restaurar Dados Oficiais Padrão"):
     st.session_state["stops_c2"] = DEFAULT_STOPS_C2
     st.session_state["dep_dias_c1"] = DEFAULT_DEPARTURES_DIAS_UTEIS
     st.session_state["dep_sab_c1"] = DEFAULT_DEPARTURES_SABADOS
+    st.session_state["dep_dom_c1"] = DEFAULT_DEPARTURES_DOMINGOS
     st.session_state["dep_dias_c2"] = DEFAULT_DEPARTURES_DIAS_UTEIS
     st.session_state["dep_sab_c2"] = DEFAULT_DEPARTURES_SABADOS
+    st.session_state["dep_dom_c2"] = DEFAULT_DEPARTURES_DOMINGOS
     st.session_state["favorites"] = []
+    st.session_state["version_date"] = DEFAULT_VERSION_DATE
+    st.session_state["version_label"] = DEFAULT_VERSION_LABEL
     if os.path.exists(CACHE_FILE):
         os.remove(CACHE_FILE)
-st.session_state["version_date"] = DEFAULT_VERSION_DATE
-st.session_state["version_label"] = DEFAULT_VERSION_LABEL
-st.sidebar.info("Dados restaurados para a versão oficial MUV mais recente em vigor: 1 de Março de 2026.")
-st.rerun()
+    st.sidebar.info("Dados restaurados para a versão oficial MUV mais recente em vigor: 1 de Março de 2026.")
+    st.rerun()
 
 
 # Main Output Layout with Tabs
@@ -959,4 +966,4 @@ with tab_detalhes:
                 st.write(f"• **Partida do Terminal:** {trip['Saída Terminal']}")
 
 st.markdown("---")
-st.caption("MUViseu Circulares v13 - Sistema Inteligente de Horários & Mobilidade Urbana de Viseu.")
+st.caption("MUViseu Circulares v14 - Sistema Inteligente de Horários & Mobilidade Urbana de Viseu.")
