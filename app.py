@@ -494,6 +494,12 @@ def _pdf_rows_for_line(pdf):
         raise ValueError("Não foi possível identificar inequivocamente as páginas de Dias úteis e Sábados/Domingos/Feriados.")
     return line, page_data["weekday"], page_data["weekend"], "\n".join(full_text)
 
+def _normalise_pdf_label(value):
+    value = unicodedata.normalize("NFKD", str(value or ""))
+    value = "".join(ch for ch in value if not unicodedata.combining(ch))
+    value = re.sub(r"[^a-z0-9]+", " ", value.lower())
+    return " ".join(value.split())
+
 def _find_terminal_rows(table):
     indexes = [i for i, row in enumerate(table) if row and _normalise_pdf_label(row[0]) == "interface hospital"]
     if len(indexes) != 2:
