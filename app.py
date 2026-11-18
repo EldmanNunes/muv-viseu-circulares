@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime, timedelta, time, date
 import re
+import io
+import unicodedata
 from fpdf import FPDF
 import json
 import os
@@ -37,128 +39,127 @@ DEFAULT_DEPARTURES_SABADOS = [
 ]
 
 DEFAULT_DEPARTURES_DOMINGOS = [
-    "07:00", "07:30", "08:00", "08:30", "09:00", "09:30", "10:00", "10:30",
-    "11:00", "11:30", "12:00"
+    "08:00", "09:00", "10:00", "11:00", "12:00", "13:00",
+    "14:00", "15:00", "16:00", "17:00", "18:00"
 ]
 
 DEFAULT_STOPS_C1 = [
-    ('Interface Hospital', 0, 40.6582, -7.9065),
-    ('Rei D Duarte-Hospital 1', 1, 40.6575, -7.908),
-    ('Quinta D´el Rei', 2, 40.656, -7.909),
-    ('Dr A Alves-C Comercial 1', 3, 40.6545, -7.9105),
-    ('Quinta do Galo 2', 4, 40.6536, -7.9114),
-    ('Quinta de Jugueiros', 5, 40.6515, -7.9135),
-    ('Residências IPV', 6, 40.6495, -7.915),
-    ('Rua Nova', 7, 40.648, -7.916),
-    ('Cidade Politécnica-IPV', 8, 40.6465, -7.917),
-    ('Reg Infantaria-IPV 1', 9, 40.6485, -7.918),
-    ('Reg Infantaria-IPV 2', 10, 40.6506, -7.9179),
-    ('Paulo VI-25 Abril', 11, 40.652, -7.915),
-    ('25 Abril-Liceu 2', 12, 40.6546, -7.9124),
-    ('Rossio 2', 13, 40.6574, -7.9122),
-    ('Alberto Sampaio 1', 14, 40.658, -7.911),
-    ('Alberto Sampaio 2', 15, 40.6596, -7.9089),
-    ('N. S. Fátima-Igreja', 16, 40.6605, -7.908),
-    ('J Maria Escrivá-Hotel 2', 17, 40.6626, -7.9064),
-    ('José Maria Escrivá 2', 18, 40.6641, -7.9054),
-    ('Monte Belo-J Infância 1', 19, 40.665, -7.905),
-    ('Monte Belo-Estádio 1', 20, 40.6665, -7.904),
-    ('Campo dos Trambelos', 21, 40.668, -7.903),
-    ('Balsa 1', 22, 40.669, -7.902),
-    ('César Anjo 1', 23, 40.67, -7.901),
-    ('Bombeiros Voluntários', 24, 40.6685, -7.908),
-    ('COMV 1', 25, 40.667, -7.912),
-    ('Fonte Cibernética 2', 26, 40.6666, -7.9144),
-    ('Av Europa-Tribunal 2', 27, 40.6656, -7.9174),
-    ('M Ferreira Figueiredo 1', 30, 40.668, -7.922),
-    ('Pedro Henriques 1', 31, 40.67, -7.924),
-    ('Escola Viriato 2', 33, 40.6726, -7.9254),
-    ('Estrada Velha Abraveses', 35, 40.674, -7.928),
-    ('Cava de Viriato 2', 37, 40.6656, -7.9124),
-    ('Feira de S. Mateus 2', 38, 40.6626, -7.9129),
-    ('Porta dos Cavaleiros 1', 39, 40.6595, -7.9125),
-    ('Mouzinho de Albuquerque', 40, 40.658, -7.914),
-    ('Capitão Silva Pereira', 41, 40.657, -7.9155),
-    ('Cap S Pereira-S Cristina', 42, 40.656, -7.9165),
-    ('5 de Outubro 1', 43, 40.655, -7.915),
-    ('Rua Seminário', 44, 40.654, -7.9135),
-    ('Dr Azeredo Perdigão 1', 45, 40.655, -7.912),
-    ('General Humberto Delgado', 46, 40.656, -7.9125),
-    ('Rossio 1', 48, 40.657, -7.9126),
-    ('25 Abril-Liceu 1', 50, 40.6542, -7.9128),
-    ('Nuno Alvares Pereira', 51, 40.6525, -7.914),
-    ('Escola João de Barros 1', 52, 40.651, -7.913),
-    ('Manuel Silva Almeida 1', 53, 40.65, -7.912),
-    ('Paulo VI-25 Abril (Regresso)', 54, 40.6528, -7.9142),
-    ('Escola Grão Vasco', 55, 40.6535, -7.911),
-    ('Alexandre Lucena e Vale', 56, 40.655, -7.909),
-    ('10 de Junho-Cemitério 1', 57, 40.6565, -7.9075),
-    ('Rei D Duarte-Mesuras', 58, 40.6575, -7.907),
-    ('Hospital S Teotónio', 58, 40.658, -7.9068),
-    ('Interface Hospital (Chegada)', 60, 40.659, -7.9057)
+    ("Interface Hospital", 0, 40.6582, -7.9065),
+    ("Rei D Duarte-Hospital 1", 1, 40.6575, -7.9080),
+    ("Quinta D´el Rei", 2, 40.6560, -7.9090),
+    ("Dr A Alves-C Comercial 1", 3, 40.6545, -7.9105),
+    ("Quinta do Galo 2", 4, 40.6536, -7.9114),
+    ("Quinta de Jugueiros", 5, 40.6515, -7.9135),
+    ("Residências IPV", 6, 40.6495, -7.9150),
+    ("Rua Nova", 7, 40.6480, -7.9160),
+    ("Cidade Politécnica-IPV", 8, 40.6465, -7.9170),
+    ("Reg Infantaria-IPV 1", 9, 40.6485, -7.9180),
+    ("Reg Infantaria-IPV 2", 10, 40.6506, -7.9179),
+    ("Paulo VI-25 Abril", 11, 40.6520, -7.9150),
+    ("25 Abril-Liceu 2", 12, 40.6546, -7.9124),
+    ("Rossio 2", 13, 40.6574, -7.9122),
+    ("Alberto Sampaio 1", 14, 40.6580, -7.9110),
+    ("Alberto Sampaio 2", 15, 40.6596, -7.9089),
+    ("N. S. Fátima-Igreja", 16, 40.6605, -7.9080),
+    ("J Maria Escrivá-Hotel 2", 17, 40.6626, -7.9064),
+    ("José Maria Escrivá 2", 18, 40.6641, -7.9054),
+    ("Monte Belo-J Infância 1", 19, 40.6650, -7.9050),
+    ("Monte Belo-Estádio 1", 20, 40.6665, -7.9040),
+    ("Campo dos Trambelos", 21, 40.6680, -7.9030),
+    ("Balsa 1", 22, 40.6690, -7.9020),
+    ("César Anjo 1", 23, 40.6700, -7.9010),
+    ("Bombeiros Voluntários", 24, 40.6685, -7.9080),
+    ("COMV 1", 25, 40.6670, -7.9120),
+    ("Fonte Cibernética 2", 26, 40.6666, -7.9144),
+    ("Av Europa-Tribunal 2", 27, 40.6656, -7.9174),
+    ("M Ferreira Figueiredo 1", 30, 40.6680, -7.9220),
+    ("Pedro Henriques 1", 31, 40.6700, -7.9240),
+    ("Escola Viriato 2", 33, 40.6726, -7.9254),
+    ("Estrada Velha Abraveses", 35, 40.6740, -7.9280),
+    ("Cava de Viriato 2", 37, 40.6656, -7.9124),
+    ("Feira de S. Mateus 2", 38, 40.6626, -7.9129),
+    ("Porta dos Cavaleiros 1", 39, 40.6595, -7.9125),
+    ("Mouzinho de Albuquerque", 40, 40.6580, -7.9140),
+    ("Capitão Silva Pereira", 41, 40.6570, -7.9155),
+    ("Cap S Pereira-S Cristina", 42, 40.6560, -7.9165),
+    ("5 de Outubro 1", 43, 40.6550, -7.9150),
+    ("Rua Seminário", 44, 40.6540, -7.9135),
+    ("Dr Azeredo Perdigão 1", 45, 40.6550, -7.9120),
+    ("General Humberto Delgado", 46, 40.6560, -7.9125),
+    ("Rossio 1", 48, 40.6570, -7.9126),
+    ("25 Abril-Liceu 1", 50, 40.6542, -7.9128),
+    ("Nuno Alvares Pereira", 51, 40.6525, -7.9140),
+    ("Escola João de Barros 1", 52, 40.6510, -7.9130),
+    ("Manuel Silva Almeida 1", 53, 40.6500, -7.9120),
+    ("Paulo VI-25 Abril (Regresso)", 54, 40.6528, -7.9142),
+    ("Escola Grão Vasco", 55, 40.6535, -7.9110),
+    ("Alexandre Lucena e Vale", 56, 40.6550, -7.9090),
+    ("10 de Junho-Cemitério 1", 57, 40.6565, -7.9075),
+    ("Rei D Duarte-Mesuras", 58, 40.6575, -7.9070),
+    ("Hospital S Teotónio", 58, 40.6580, -7.9068),
+    ("Interface Hospital (Chegada)", 60, 40.6584, -7.9063)
 ]
 
 DEFAULT_STOPS_C2 = [
-    ('Interface Hospital', 0, 40.6582, -7.9065),
-    ('Biblioteca-Loja Cidadão', 1, 40.657, -7.908),
-    ('10 de Junho-Cemitério 2', 2, 40.6571, -7.9069),
-    ('Rua Mendonça', 3, 40.655, -7.909),
-    ('Escola Grão Vasco', 3, 40.6535, -7.911),
-    ('Praça de Goa', 4, 40.652, -7.912),
-    ('Estevão Lopes Morago 1', 5, 40.651, -7.9125),
-    ('Manuel Silva Almeida 2', 6, 40.6506, -7.9114),
-    ('Escola João de Barros 2', 7, 40.6516, -7.9124),
-    ('António Esteves Correia', 8, 40.6525, -7.9135),
-    ('25 Abril-Liceu 2', 9, 40.6546, -7.9124),
-    ('Rossio 2', 10, 40.6574, -7.9122),
-    ('Alves Martins', 11, 40.6575, -7.9135),
-    ('Dr Azeredo Perdigão 2', 12, 40.6556, -7.9114),
-    ('Monsenhor Celso T Silva', 13, 40.6545, -7.914),
-    ('Universidade Católica', 14, 40.6535, -7.916),
-    ('5 de Outubro 2', 15, 40.6556, -7.9144),
-    ('S Cristina-Cap S Pereira', 16, 40.656, -7.9165),
-    ('Cap S Pereira-Fontelo', 17, 40.6575, -7.915),
-    ('Largo Santo António', 18, 40.6585, -7.9135),
-    ('Porta dos Cavaleiros 2', 19, 40.6601, -7.9119),
-    ('Feira de S Mateus 1', 20, 40.662, -7.9135),
-    ('Cava de Viriato 1', 21, 40.665, -7.913),
-    ('Av Bélgica-Alf Miguel 1', 22, 40.667, -7.918),
-    ('Avenida Bélgica 2', 23, 40.6691, -7.9194),
-    ('Pedro Henriques 1', 24, 40.67, -7.924),
-    ('Pedro Henriques 2', 25, 40.6716, -7.9244),
-    ('M Ferreira Figueiredo 2', 27, 40.6686, -7.9214),
-    ('Avenida Europa', 29, 40.666, -7.92),
-    ('Av Europa-Tribunal 1', 31, 40.665, -7.918),
-    ('Fonte Cibernética 1', 32, 40.666, -7.915),
-    ('COMV 2', 33, 40.6676, -7.9114),
-    ('César Anjo 2', 34, 40.6706, -7.9004),
-    ('Balsa 2', 35, 40.6696, -7.9014),
-    ('Cidade Aveiro', 36, 40.6675, -7.903),
-    ('Monte Belo-Estádio 2', 37, 40.6671, -7.9034),
-    ('Monte Belo-J Infância 2', 38, 40.6656, -7.9044),
-    ('José Maria Escrivá 1', 39, 40.6635, -7.906),
-    ('J Maria Escrivá-Hotel 1', 40, 40.662, -7.907),
-    ('Engrácia Carrilho-Igreja', 41, 40.66, -7.9085),
-    ('Colégio Imac Conceição', 42, 40.659, -7.91),
-    ('Alberto Sampaio 3', 43, 40.658, -7.911),
-    ('Rossio 1', 44, 40.657, -7.9126),
-    ('25 Abril-Liceu 1', 45, 40.6542, -7.9128),
-    ('25 Abril-Paulo VI', 45, 40.652, -7.915),
-    ('Reg Infantaria', 46, 40.65, -7.9185),
-    ('Reg Infantaria-IPV 3', 47, 40.6485, -7.918),
-    ('C Politécnica-Escola', 48, 40.6465, -7.917),
-    ('Madre Rita de Jesus 1', 49, 40.648, -7.9155),
-    ('M Rita Jesus-Escola 1', 50, 40.6495, -7.914),
-    ('M Rita Jesus-C Saúde', 51, 40.6512, -7.9123),
-    ('M R Jesus-Int V Fontes', 52, 40.6525, -7.911),
-    ('Quinta do Galo 1', 53, 40.653, -7.912),
-    ('Quinta da Alagoa', 54, 40.6545, -7.91),
-    ('Escola Aquilino Ribeiro', 55, 40.656, -7.9085),
-    ('Rei D Duarte-Hospital 2', 56, 40.6581, -7.9074),
-    ('Hospital S Teotónio', 57, 40.658, -7.9068),
-    ('Interface Hospital (Chegada)', 60, 40.659, -7.9057)
+    ("Interface Hospital", 0, 40.6582, -7.9065),
+    ("Biblioteca-Loja Cidadão", 1, 40.6570, -7.9080),
+    ("10 de Junho-Cemitério 2", 2, 40.6571, -7.9069),
+    ("Rua Mendonça", 3, 40.6550, -7.9090),
+    ("Escola Grão Vasco", 3, 40.6535, -7.9110),
+    ("Praça de Goa", 4, 40.6520, -7.9120),
+    ("Estevão Lopes Morago 1", 5, 40.6510, -7.9125),
+    ("Manuel Silva Almeida 2", 6, 40.6506, -7.9114),
+    ("Escola João de Barros 2", 7, 40.6516, -7.9124),
+    ("António Esteves Correia", 8, 40.6525, -7.9135),
+    ("25 Abril-Liceu 2", 9, 40.6546, -7.9124),
+    ("Rossio 2", 10, 40.6574, -7.9122),
+    ("Alves Martins", 11, 40.6575, -7.9135),
+    ("Dr Azeredo Perdigão 2", 12, 40.6556, -7.9114),
+    ("Monsenhor Celso T Silva", 13, 40.6545, -7.9140),
+    ("Universidade Católica", 14, 40.6535, -7.9160),
+    ("5 de Outubro 2", 15, 40.6556, -7.9144),
+    ("S Cristina-Cap S Pereira", 16, 40.6560, -7.9165),
+    ("Cap S Pereira-Fontelo", 17, 40.6575, -7.9150),
+    ("Largo Santo António", 18, 40.6585, -7.9135),
+    ("Porta dos Cavaleiros 2", 19, 40.6601, -7.9119),
+    ("Feira de S Mateus 1", 20, 40.6620, -7.9135),
+    ("Cava de Viriato 1", 21, 40.6650, -7.9130),
+    ("Av Bélgica-Alf Miguel 1", 22, 40.6670, -7.9180),
+    ("Avenida Bélgica 2", 23, 40.6691, -7.9194),
+    ("Pedro Henriques 1", 24, 40.6700, -7.9240),
+    ("Pedro Henriques 2", 25, 40.6716, -7.9244),
+    ("M Ferreira Figueiredo 2", 27, 40.6686, -7.9214),
+    ("Avenida Europa", 29, 40.6660, -7.9200),
+    ("Av Europa-Tribunal 1", 31, 40.6650, -7.9180),
+    ("Fonte Cibernética 1", 32, 40.6660, -7.9150),
+    ("COMV 2", 33, 40.6676, -7.9114),
+    ("César Anjo 2", 34, 40.6706, -7.9004),
+    ("Balsa 2", 35, 40.6696, -7.9014),
+    ("Cidade Aveiro", 36, 40.6675, -7.9030),
+    ("Monte Belo-Estádio 2", 37, 40.6671, -7.9034),
+    ("Monte Belo-J Infância 2", 38, 40.6656, -7.9044),
+    ("José Maria Escrivá 1", 39, 40.6635, -7.9060),
+    ("J Maria Escrivá-Hotel 1", 40, 40.6620, -7.9070),
+    ("Engrácia Carrilho-Igreja", 41, 40.6600, -7.9085),
+    ("Colégio Imac Conceição", 42, 40.6590, -7.9100),
+    ("Alberto Sampaio 3", 43, 40.6580, -7.9110),
+    ("Rossio 1", 44, 40.6570, -7.9126),
+    ("25 Abril-Liceu 1", 45, 40.6542, -7.9128),
+    ("25 Abril-Paulo VI", 45, 40.6520, -7.9150),
+    ("Reg Infantaria", 46, 40.6500, -7.9185),
+    ("Reg Infantaria-IPV 3", 47, 40.6485, -7.9180),
+    ("C Politécnica-Escola", 48, 40.6465, -7.9170),
+    ("Madre Rita de Jesus 1", 49, 40.6480, -7.9155),
+    ("M Rita Jesus-Escola 1", 50, 40.6495, -7.9140),
+    ("M Rita Jesus-C Saúde", 51, 40.6512, -7.9123),
+    ("M R Jesus-Int V Fontes", 52, 40.6525, -7.9110),
+    ("Quinta do Galo 1", 53, 40.6530, -7.9120),
+    ("Quinta da Alagoa", 54, 40.6545, -7.9100),
+    ("Escola Aquilino Ribeiro", 55, 40.6560, -7.9085),
+    ("Rei D Duarte-Hospital 2", 56, 40.6581, -7.9074),
+    ("Hospital S Teotónio", 57, 40.6580, -7.9068),
+    ("Interface Hospital (Chegada)", 60, 40.6584, -7.9063)
 ]
-
 
 MASTER_STOP_COORDS = {}
 for _s in DEFAULT_STOPS_C1 + DEFAULT_STOPS_C2:
@@ -235,16 +236,49 @@ def format_stop_label(stop_name):
         return f"{stop_name} — {ref}"
     return stop_name
 
-
 # --- PERSISTENCE HELPERS ---
+def _valid_stop_records(records):
+    if not isinstance(records, list) or len(records) < 2:
+        return False
+    seen = set()
+    for item in records:
+        if not isinstance(item, (list, tuple)) or len(item) != 4:
+            return False
+        name, offset, lat, lon = item
+        if not isinstance(name, str) or not name.strip() or name in seen:
+            return False
+        if isinstance(offset, bool) or not isinstance(offset, (int, float)) or offset < 0 or offset > 180:
+            return False
+        if not isinstance(lat, (int, float)) or not isinstance(lon, (int, float)):
+            return False
+        if not (-90 <= lat <= 90 and -180 <= lon <= 180):
+            return False
+        seen.add(name)
+    return True
+
+
+def _valid_departures(values):
+    if not isinstance(values, list) or len(values) < 2:
+        return False
+    parsed = []
+    for value in values:
+        if not isinstance(value, str) or not re.fullmatch(r"(?:[01]\d|2[0-3]):[0-5]\d", value):
+            return False
+        h, m = map(int, value.split(":"))
+        parsed.append(h * 60 + m)
+    if parsed != sorted(set(parsed)):
+        return False
+    return all((b - a) > 1 for a, b in zip(parsed, parsed[1:]))
+
+
 def load_persisted_data():
-    """Carrega dados persistidos; ficheiros inválidos não interrompem a aplicação."""
+    """Lê o cache e valida cada conjunto; dados suspeitos não entram na sessão."""
     if not os.path.exists(CACHE_FILE):
         return None
     try:
         with open(CACHE_FILE, "r", encoding="utf-8") as f:
             data = json.load(f)
-        if not isinstance(data, dict):
+        if not isinstance(data, dict) or data.get("schema_version", 1) not in (1, 2):
             return None
         return data
     except (OSError, json.JSONDecodeError, UnicodeDecodeError):
@@ -252,9 +286,9 @@ def load_persisted_data():
 
 
 def save_persisted_data():
-    """Guarda os dados de forma atómica para evitar JSON truncado."""
+    """Guarda dados de forma atómica no esquema v2."""
     data = {
-        "schema_version": 1,
+        "schema_version": 2,
         "stops_c1": st.session_state.get("stops_c1", DEFAULT_STOPS_C1),
         "stops_c2": st.session_state.get("stops_c2", DEFAULT_STOPS_C2),
         "dep_dias_c1": st.session_state.get("dep_dias_c1", DEFAULT_DEPARTURES_DIAS_UTEIS),
@@ -281,32 +315,38 @@ def save_persisted_data():
             except OSError:
                 pass
 
+
 # --- INITIALIZE SESSION STATE ---
-cached = load_persisted_data()
-if cached:
-    if "stops_c1" not in st.session_state: st.session_state["stops_c1"] = [tuple(x) for x in cached.get("stops_c1", DEFAULT_STOPS_C1)]
-    if "stops_c2" not in st.session_state: st.session_state["stops_c2"] = [tuple(x) for x in cached.get("stops_c2", DEFAULT_STOPS_C2)]
-    if "dep_dias_c1" not in st.session_state: st.session_state["dep_dias_c1"] = cached.get("dep_dias_c1", DEFAULT_DEPARTURES_DIAS_UTEIS)
-    if "dep_sab_c1" not in st.session_state: st.session_state["dep_sab_c1"] = cached.get("dep_sab_c1", DEFAULT_DEPARTURES_SABADOS)
-    if "dep_dias_c2" not in st.session_state: st.session_state["dep_dias_c2"] = cached.get("dep_dias_c2", DEFAULT_DEPARTURES_DIAS_UTEIS)
-    if "dep_sab_c2" not in st.session_state: st.session_state["dep_sab_c2"] = cached.get("dep_sab_c2", DEFAULT_DEPARTURES_SABADOS)
-    if "dep_dom_c1" not in st.session_state: st.session_state["dep_dom_c1"] = cached.get("dep_dom_c1", DEFAULT_DEPARTURES_DOMINGOS)
-    if "dep_dom_c2" not in st.session_state: st.session_state["dep_dom_c2"] = cached.get("dep_dom_c2", DEFAULT_DEPARTURES_DOMINGOS)
-    if "favorites" not in st.session_state: st.session_state["favorites"] = cached.get("favorites", [])
-    if "version_date" not in st.session_state: st.session_state["version_date"] = cached.get("version_date", DEFAULT_VERSION_DATE)
-    if "version_label" not in st.session_state: st.session_state["version_label"] = cached.get("version_label", DEFAULT_VERSION_LABEL)
-else:
-    if "stops_c1" not in st.session_state: st.session_state["stops_c1"] = DEFAULT_STOPS_C1
-    if "stops_c2" not in st.session_state: st.session_state["stops_c2"] = DEFAULT_STOPS_C2
-    if "dep_dias_c1" not in st.session_state: st.session_state["dep_dias_c1"] = DEFAULT_DEPARTURES_DIAS_UTEIS
-    if "dep_sab_c1" not in st.session_state: st.session_state["dep_sab_c1"] = DEFAULT_DEPARTURES_SABADOS
-    if "dep_dom_c1" not in st.session_state: st.session_state["dep_dom_c1"] = DEFAULT_DEPARTURES_DOMINGOS
-    if "dep_dias_c2" not in st.session_state: st.session_state["dep_dias_c2"] = DEFAULT_DEPARTURES_DIAS_UTEIS
-    if "dep_sab_c2" not in st.session_state: st.session_state["dep_sab_c2"] = DEFAULT_DEPARTURES_SABADOS
-    if "dep_dom_c2" not in st.session_state: st.session_state["dep_dom_c2"] = DEFAULT_DEPARTURES_DOMINGOS
-    if "favorites" not in st.session_state: st.session_state["favorites"] = []
-    if "version_date" not in st.session_state: st.session_state["version_date"] = DEFAULT_VERSION_DATE
-    if "version_label" not in st.session_state: st.session_state["version_label"] = DEFAULT_VERSION_LABEL
+cached = load_persisted_data() or {}
+for line, defaults in (("c1", DEFAULT_STOPS_C1), ("c2", DEFAULT_STOPS_C2)):
+    key = f"stops_{line}"
+    candidate = cached.get(key)
+    if key not in st.session_state:
+        st.session_state[key] = [tuple(x) for x in candidate] if _valid_stop_records(candidate) else defaults
+
+for suffix, defaults in (
+    ("dep_dias_c1", DEFAULT_DEPARTURES_DIAS_UTEIS),
+    ("dep_sab_c1", DEFAULT_DEPARTURES_SABADOS),
+    ("dep_dom_c1", DEFAULT_DEPARTURES_DOMINGOS),
+    ("dep_dias_c2", DEFAULT_DEPARTURES_DIAS_UTEIS),
+    ("dep_sab_c2", DEFAULT_DEPARTURES_SABADOS),
+    ("dep_dom_c2", DEFAULT_DEPARTURES_DOMINGOS),
+):
+    candidate = cached.get(suffix)
+    if suffix not in st.session_state:
+        st.session_state[suffix] = candidate if _valid_departures(candidate) else defaults
+
+if "favorites" not in st.session_state:
+    raw_favorites = cached.get("favorites", [])
+    st.session_state["favorites"] = [
+        fav for fav in raw_favorites if isinstance(fav, dict)
+        and isinstance(fav.get("origem"), str) and isinstance(fav.get("destino"), str)
+        and fav.get("modo") in ("Linha C1", "Linha C2", "⚡ Comparar C1 e C2 (Mais Rápida)")
+    ] if isinstance(raw_favorites, list) else []
+if "version_date" not in st.session_state:
+    st.session_state["version_date"] = cached.get("version_date", DEFAULT_VERSION_DATE)
+if "version_label" not in st.session_state:
+    st.session_state["version_label"] = cached.get("version_label", DEFAULT_VERSION_LABEL)
 
 # --- PARSER FUNCTION FOR PDF UPLOAD ---
 MONTH_MAP = {
@@ -316,50 +356,425 @@ MONTH_MAP = {
 }
 
 def extract_version_date_from_text(text):
-    match = re.search(r'EM\s+VIGOR\s+A\s+PARTIR\s+DE\s+(\d{1,2})\s+DE\s+([A-Za-zçãõÇÃÕ]+)\s+DE\s+(\d{4})', text, re.IGNORECASE)
-    if match:
-        day = int(match.group(1))
-        month_str = match.group(2).lower()
-        year = int(match.group(3))
-        month = MONTH_MAP.get(month_str, 3)
-        return date(year, month, day), f"{day} de {month_str.capitalize()} de {year}"
-    
-    match_iso = re.search(r'(\d{4})-(\d{2})-(\d{2})', text)
-    if match_iso:
-        y, m, d = map(int, match_iso.groups())
-        return date(y, m, d), f"{d}/{m}/{y}"
-        
-    return None, None
+    """Só aceita uma declaração explícita de entrada em vigor em português."""
+    match = re.search(
+        r'EM\s+VIGOR\s+A\s+PARTIR\s+DE\s+(\d{1,2})\s+DE\s+([A-Za-zçãõÇÃÕ]+)\s+DE\s+(\d{4})',
+        text, re.IGNORECASE
+    )
+    if not match:
+        return None, None
+    day = int(match.group(1))
+    month_str = match.group(2).lower()
+    year = int(match.group(3))
+    month = MONTH_MAP.get(month_str)
+    if not month:
+        return None, None
+    try:
+        parsed = date(year, month, day)
+    except ValueError:
+        return None, None
+    return parsed, f"{day} de {month_str.capitalize()} de {year}"
+
+
+def _normalise_pdf_label(value):
+    value = unicodedata.normalize("NFKD", str(value or ""))
+    value = "".join(ch for ch in value if not unicodedata.combining(ch))
+    value = re.sub(r"[^a-z0-9]+", " ", value.lower())
+    return " ".join(value.split())
+
 
 def parse_pdf_schedules(pdf_file):
-    """Extrai metadados sem inventar datas, paragens ou minutos de percurso.
+    """Parser conservador: só importa paragens oficiais reconhecidas e partidas da linha terminal.
 
-    Os PDFs MUV podem ter tabelas com várias colunas de viagens. Sem uma
-    estrutura inequívoca, a importação é bloqueada para evitar corromper dados.
+    Não inventa coordenadas/tempos, não elimina células vazias e não procura horas no texto geral.
     """
-    parsed_line = None
-    parsed_stops = []
-    parsed_departures = []
     full_text_parts = []
-
+    parsed_line = None
+    table_rows = []
     try:
         with pdfplumber.open(pdf_file) as pdf:
             for page in pdf.pages:
-                full_text_parts.append(page.extract_text() or "")
+                page_text = page.extract_text() or ""
+                full_text_parts.append(page_text)
                 if parsed_line is None:
-                    page_text = full_text_parts[-1]
-                    line_match = re.search(r"\\b(?:LINHA\\s*)?(C[12])\\b", page_text, re.IGNORECASE)
+                    line_match = re.search(r"\b(?:LINHA\s*)?(C[12])\b", page_text, re.IGNORECASE)
                     if line_match:
                         parsed_line = line_match.group(1).upper()
-        full_text = "\\n".join(full_text_parts)
+                for table in (page.extract_tables() or []):
+                    for row in table or []:
+                        # Mantém índices/colunas originais: células vazias são significativas.
+                        table_rows.append([cell.strip() if isinstance(cell, str) else "" for cell in (row or [])])
+        full_text = "\n".join(full_text_parts)
     except Exception:
         return None, [], [], None, None
 
-    pdf_date_obj, pdf_date_label = extract_version_date_from_text(full_text)
+    # Sem identificação inequívoca da linha, não se usa a seleção atual como fallback.
+    if parsed_line not in ("C1", "C2"):
+        return None, [], [], None, None
 
-    # Do not interpret every clock value in a PDF as a terminal departure:
-    # these values may represent intermediate stops or notes.
+    official_stops = DEFAULT_STOPS_C1 if parsed_line == "C1" else DEFAULT_STOPS_C2
+    official_by_label = {_normalise_pdf_label(item[0]): item for item in official_stops}
+    parsed_stops = []
+    seen_stops = set()
+    terminal_time_cells = []
+
+    for row in table_rows:
+        if not row:
+            continue
+        first_cell = _normalise_pdf_label(row[0])
+        if first_cell in official_by_label:
+            official_stop = official_by_label[first_cell]
+            if official_stop[0] not in seen_stops:
+                parsed_stops.append(official_stop)
+                seen_stops.add(official_stop[0])
+        if "interface hospital" in first_cell and "chegada" not in first_cell:
+            for col_index, cell in enumerate(row[1:], start=1):
+                times = re.findall(r"(?<!\d)(?:[01]\d|2[0-3]):[0-5]\d(?!\d)", cell)
+                if times:
+                    terminal_time_cells.append((col_index, times))
+
+    parsed_departures = []
+    # Várias colunas de horários podem representar regimes diferentes. Sem cabeçalhos
+    # interpretados com segurança, a mistura é bloqueada em vez de juntar regimes.
+    if len(terminal_time_cells) == 1:
+        parsed_departures = terminal_time_cells[0][1]
+        parsed_departures = sorted(set(parsed_departures), key=lambda t: int(t[:2]) * 60 + int(t[3:]))
+        if not _valid_departures(parsed_departures):
+            parsed_departures = []
+
+    pdf_date_obj, pdf_date_label = extract_version_date_from_text(full_text)
+    if len(parsed_stops) < 5:
+        parsed_stops = []
     return parsed_line, parsed_stops, parsed_departures, pdf_date_obj, pdf_date_label
+
+
+# --- EXCEL IMPORTER (SCHEMA MUViseu v1) ---
+EXCEL_REGIMES = {
+    "Dias úteis": "dep_dias",
+    "Sábados": "dep_sab",
+    "Domingos e feriados": "dep_dom",
+}
+
+def parse_excel_schedules(excel_file):
+    """Lê um Excel estruturado; não infere nem completa valores em falta."""
+    errors = []
+    try:
+        xls = pd.ExcelFile(excel_file)
+        required_sheets = {"Configuração", "Paragens", "Horários"}
+        if not required_sheets.issubset(set(xls.sheet_names)):
+            return None, [], {}, None, ["O ficheiro deve conter as folhas Configuração, Paragens e Horários."]
+
+        config = pd.read_excel(xls, sheet_name="Configuração", header=None)
+        config_map = {}
+        for _, row in config.iterrows():
+            if len(row) >= 2 and pd.notna(row.iloc[0]):
+                config_map[str(row.iloc[0]).strip().lower()] = row.iloc[1]
+
+        line = str(config_map.get("linha", "")).strip().upper()
+        if line not in ("C1", "C2"):
+            errors.append("Configuração: Linha deve ser C1 ou C2.")
+
+        raw_date = config_map.get("data de entrada em vigor")
+        version_date = None
+        if pd.notna(raw_date):
+            try:
+                if isinstance(raw_date, (datetime, date)):
+                    version_date = raw_date.date() if isinstance(raw_date, datetime) else raw_date
+                else:
+                    date_text = str(raw_date).strip()
+                    if re.fullmatch(r"\d{4}-\d{2}-\d{2}", date_text):
+                        version_date = date.fromisoformat(date_text)
+                    else:
+                        version_date = pd.to_datetime(date_text, dayfirst=True).date()
+            except Exception:
+                errors.append("Configuração: data de entrada em vigor inválida.")
+        else:
+            errors.append("Configuração: falta a data de entrada em vigor.")
+
+        stops_df = pd.read_excel(xls, sheet_name="Paragens")
+        expected_stop_cols = {"Linha", "Nome", "Ordem", "Latitude", "Longitude"}
+        if not expected_stop_cols.issubset(set(stops_df.columns)):
+            errors.append("Paragens: colunas obrigatórias: Linha, Nome, Ordem, Latitude e Longitude.")
+            stops = []
+        else:
+            stops = []
+            selected = stops_df[stops_df["Linha"].astype(str).str.strip().str.upper() == line]
+            for _, r in selected.iterrows():
+                if pd.isna(r.get("Nome")):
+                    continue
+                name = str(r["Nome"]).strip()
+                try:
+                    order = float(r["Ordem"])
+                    lat = float(r["Latitude"])
+                    lon = float(r["Longitude"])
+                    if not order.is_integer():
+                        raise ValueError()
+                    stops.append((name, int(order), lat, lon))
+                except Exception:
+                    errors.append(f"Paragens: dados inválidos na paragem «{name}».")
+            if not _valid_stop_records(stops):
+                errors.append("Paragens: são necessárias pelo menos 2 paragens válidas, sem nomes repetidos e com coordenadas/ordens válidas.")
+
+        if "Conferência PDF" in xls.sheet_names:
+            audit_df = pd.read_excel(xls, sheet_name="Conferência PDF")
+            required_audit_cols = {"Nome na aplicação", "Estado"}
+            if not required_audit_cols.issubset(set(audit_df.columns)):
+                errors.append("Conferência PDF: faltam as colunas Nome na aplicação e Estado.")
+            else:
+                known_names = {item[0] for item in stops}
+                for _, audit_row in audit_df.iterrows():
+                    audit_name = str(audit_row.get("Nome na aplicação", "")).strip()
+                    audit_state = str(audit_row.get("Estado", "")).strip().upper()
+                    if audit_state != "VALIDADO":
+                        errors.append(f"Conferência PDF: a paragem «{audit_name or 'sem nome'}» ainda não está validada ({audit_state or 'estado em falta'}).")
+                    elif audit_name not in known_names:
+                        errors.append(f"Conferência PDF: «{audit_name}» não existe na folha Paragens.")
+
+        times_df = pd.read_excel(xls, sheet_name="Horários")
+        if not {"Linha", "Regime", "Partida"}.issubset(set(times_df.columns)):
+            errors.append("Horários: colunas obrigatórias: Linha, Regime e Partida.")
+            departures = {}
+        else:
+            departures = {}
+            selected = times_df[times_df["Linha"].astype(str).str.strip().str.upper() == line]
+            for regime in EXCEL_REGIMES:
+                values = []
+                subset = selected[selected["Regime"].astype(str).str.strip().str.casefold() == regime.casefold()]
+                for value in subset["Partida"].tolist():
+                    if pd.isna(value):
+                        continue
+                    if isinstance(value, (datetime, time)):
+                        value = value.strftime("%H:%M")
+                    elif isinstance(value, (int, float)) and 0 <= value < 1:
+                        mins = round(float(value) * 24 * 60)
+                        value = f"{mins // 60:02d}:{mins % 60:02d}"
+                    else:
+                        value = str(value).strip()
+                        if re.fullmatch(r"\d{1,2}:\d{2}:\d{2}", value):
+                            value = value[:5]
+                    values.append(value)
+                if not _valid_departures(values):
+                    errors.append(f"Horários: o regime «{regime}» deve conter pelo menos 2 partidas válidas, ordenadas e sem duplicados.")
+                else:
+                    departures[EXCEL_REGIMES[regime]] = values
+
+        if errors:
+            return line if line in ("C1", "C2") else None, [], {}, version_date, errors
+        return line, stops, departures, version_date, []
+    except Exception as exc:
+        return None, [], {}, None, [f"Não foi possível ler o Excel: {exc}"]
+
+
+# --- CONVERSOR DE PDF OFICIAL PARA EXCEL ---
+def _pdf_time_from_cell(cell):
+    match = re.search(r"(?<!\d)(?:[01]\d|2[0-3]):[0-5]\d(?!\d)", str(cell or ""))
+    return match.group(0) if match else None
+
+
+def _pdf_rows_for_line(pdf):
+    """Valida a estrutura de duas páginas e devolve as tabelas de dias úteis/fim de semana."""
+    page_data = {}
+    full_text = []
+    line = None
+    for page in pdf.pages:
+        text = page.extract_text() or ""
+        full_text.append(text)
+        m = re.search(r"\b(C[12])\s+CIRCULAR\s*\|\s*(DIAS ÚTEIS|SÁBADOS, DOMINGOS E FERIADOS)", text, re.I)
+        if not m:
+            continue
+        detected_line = m.group(1).upper()
+        regime_heading = "weekday" if "DIAS ÚTEIS" in m.group(2).upper() else "weekend"
+        if line and line != detected_line:
+            raise ValueError("O PDF contém páginas de linhas diferentes.")
+        line = detected_line
+        tables = page.extract_tables() or []
+        if len(tables) != 1:
+            raise ValueError(f"Página {regime_heading}: era esperada uma tabela de horários; foram encontradas {len(tables)}.")
+        if regime_heading in page_data:
+            raise ValueError(f"O PDF contém mais de uma página para o regime {regime_heading}.")
+        page_data[regime_heading] = tables[0]
+    if line not in ("C1", "C2") or set(page_data) != {"weekday", "weekend"}:
+        raise ValueError("Não foi possível identificar inequivocamente as páginas de Dias úteis e Sábados/Domingos/Feriados.")
+    return line, page_data["weekday"], page_data["weekend"], "\n".join(full_text)
+
+
+def _find_terminal_rows(table):
+    indexes = [i for i, row in enumerate(table) if row and _normalise_pdf_label(row[0]) == "interface hospital"]
+    if len(indexes) != 2:
+        raise ValueError(f"A tabela deve conter exatamente duas linhas Interface Hospital (partida e regresso); foram encontradas {len(indexes)}.")
+    return indexes[0], indexes[1]
+
+
+def _extract_stop_sequence(table):
+    first, last = _find_terminal_rows(table)
+    sequence = []
+    for row in table[first:last + 1]:
+        if not row or not str(row[0] or "").strip():
+            continue
+        sequence.append(row)
+    if len(sequence) < 5:
+        raise ValueError("A tabela não contém uma sequência de paragens suficiente.")
+    return sequence
+
+
+def convert_official_pdf_to_excel(pdf_file):
+    """Converte um PDF oficial C1/C2 para o modelo Excel, assinalando divergências."""
+    if hasattr(pdf_file, "seek"):
+        pdf_file.seek(0)
+    with pdfplumber.open(pdf_file) as pdf:
+        line, weekday_table, weekend_table, full_text = _pdf_rows_for_line(pdf)
+
+    version_date, date_label = extract_version_date_from_text(full_text)
+    if not version_date:
+        raise ValueError("O PDF não contém uma data explícita 'EM VIGOR A PARTIR DE'.")
+
+    weekday_seq = _extract_stop_sequence(weekday_table)
+    weekend_seq = _extract_stop_sequence(weekend_table)
+    weekday_labels = [_normalise_pdf_label(r[0]) for r in weekday_seq]
+    weekend_labels = [_normalise_pdf_label(r[0]) for r in weekend_seq]
+    if weekday_labels != weekend_labels:
+        raise ValueError("A sequência de paragens difere entre as páginas de Dias úteis e de Sábados/Domingos/Feriados.")
+
+    weekday_departures = [_pdf_time_from_cell(c) for c in weekday_seq[0][2:]]
+    weekday_departures = [v for v in weekday_departures if v]
+    saturday_departures = [_pdf_time_from_cell(c) for c in weekend_seq[0][2:]]
+    saturday_departures = [v for v in saturday_departures if v]
+
+    # Os marcadores ** na linha de cabeçalho identificam as partidas de domingos/feriados.
+    marker_row = next((r for r in weekend_table if r and _normalise_pdf_label(r[0]) == "nome paragem"), None)
+    if marker_row is None:
+        raise ValueError("Não foi encontrada a linha de cabeçalho NOME PARAGEM no quadro de fim de semana.")
+    marked_columns = {i for i, cell in enumerate(marker_row) if "**" in str(cell or "")}
+    sunday_departures = []
+    for col in sorted(marked_columns):
+        if col < len(weekend_seq[0]):
+            value = _pdf_time_from_cell(weekend_seq[0][col])
+            if value:
+                sunday_departures.append(value)
+
+    for label, values in (("Dias úteis", weekday_departures), ("Sábados", saturday_departures), ("Domingos e feriados", sunday_departures)):
+        if not _valid_departures(values):
+            raise ValueError(f"Os horários extraídos para {label} são inválidos, incompletos ou não estão ordenados.")
+
+    master = DEFAULT_STOPS_C1 if line == "C1" else DEFAULT_STOPS_C2
+    master_by_name = {item[0]: item for item in master}
+    used_names = set()
+    base_departure = weekday_departures[0]
+    bh, bm = map(int, base_departure.split(":"))
+    stop_rows = []
+    audit_rows = []
+    unmatched = []
+
+    for pos, row in enumerate(weekday_seq):
+        pdf_name = str(row[0]).strip()
+        row_time = _pdf_time_from_cell(row[2] if len(row) > 2 else None)
+        if not row_time:
+            raise ValueError(f"Não foi possível calcular o tempo de percurso da paragem «{pdf_name}».")
+        rh, rm = map(int, row_time.split(":"))
+        pdf_offset = (rh * 60 + rm) - (bh * 60 + bm)
+        if pdf_offset < 0:
+            pdf_offset += 24 * 60
+
+        # A última linha terminal é o ponto de chegada; na aplicação tem nome próprio.
+        if pos == len(weekday_seq) - 1 and _normalise_pdf_label(pdf_name) == "interface hospital":
+            app_name = "Interface Hospital (Chegada)"
+        elif line == "C1" and pdf_name == "Paulo VI-25 Abril" and pdf_name in used_names and "Paulo VI-25 Abril (Regresso)" in master_by_name:
+            app_name = "Paulo VI-25 Abril (Regresso)"
+        else:
+            app_name = pdf_name if pdf_name in master_by_name else ""
+
+        if app_name and app_name in master_by_name and app_name not in used_names:
+            master_item = master_by_name[app_name]
+            master_offset, lat, lon = master_item[1], master_item[2], master_item[3]
+            state = "VALIDADO" if int(master_offset) == int(pdf_offset) else "DIVERGÊNCIA_OFFSET"
+            note = "Correspondência exata com a lista da aplicação." if state == "VALIDADO" else f"Offset do PDF ({pdf_offset}) difere do offset da aplicação ({master_offset})."
+            if state == "DIVERGÊNCIA_OFFSET":
+                unmatched.append(f"{pdf_name}: offset PDF {pdf_offset} / aplicação {master_offset}")
+            used_names.add(app_name)
+            final_name = app_name
+        else:
+            final_name = pdf_name
+            lat = None
+            lon = None
+            state = "SEM_COORDENADAS"
+            note = "Paragem não encontrada na lista da aplicação; inserir coordenadas verificadas na folha Paragens e validar esta linha." 
+            unmatched.append(pdf_name)
+
+        stop_rows.append([line, final_name, int(pdf_offset), lat, lon])
+        audit_rows.append([line, pdf_name, final_name, pos + 1, int(pdf_offset),
+                           master_by_name[app_name][1] if app_name in master_by_name else None,
+                           state, note])
+
+    # Exige correspondência de todas as paragens existentes na aplicação para evitar perda silenciosa.
+    missing_master = [item[0] for item in master if item[0] not in used_names]
+    # Interface Hospital (Chegada) é incluída pela última linha do PDF; os restantes têm de ser encontrados.
+    missing_master = [n for n in missing_master if n != "Interface Hospital (Chegada)"]
+    if missing_master:
+        for name in missing_master:
+            unmatched.append(f"Paragem da aplicação ausente no PDF: {name}")
+            audit_rows.append([line, "(não consta do PDF)", name, None, None, master_by_name[name][1], "AUSENTE_NO_PDF", "Confirmar se a paragem foi removida oficialmente."])
+
+    wb = Workbook()
+    cfg = wb.active
+    cfg.title = "Configuração"
+    cfg.append(["Campo", "Valor"])
+    cfg.append(["Linha", line])
+    cfg.append(["Data de entrada em vigor", version_date])
+    cfg.append(["Documento de origem", f"PDF oficial {line} — {date_label}"])
+    cfg.append(["Nota", "Horários extraídos da primeira linha Interface Hospital em cada página. A segunda linha Interface Hospital é o regresso/chegada."])
+    cfg.append(["Regime de domingo", "Partidas marcadas com ** no cabeçalho do PDF; não foram inferidas por intervalos."])
+
+    stops_ws = wb.create_sheet("Paragens")
+    stops_ws.append(["Linha", "Nome", "Ordem", "Latitude", "Longitude"])
+    for r in stop_rows:
+        stops_ws.append(r)
+
+    times_ws = wb.create_sheet("Horários")
+    times_ws.append(["Linha", "Regime", "Partida"])
+    for regime, values in (("Dias úteis", weekday_departures), ("Sábados", saturday_departures), ("Domingos e feriados", sunday_departures)):
+        for value in values:
+            times_ws.append([line, regime, value])
+
+    audit_ws = wb.create_sheet("Conferência PDF")
+    audit_ws.append(["Linha", "Paragem no PDF", "Nome na aplicação", "Ordem PDF", "Offset PDF (min)", "Offset aplicação (min)", "Estado", "Observações"])
+    for r in audit_rows:
+        audit_ws.append(r)
+
+    for ws in wb.worksheets:
+        ws.freeze_panes = "A2"
+        ws.row_dimensions[1].height = 24
+        for cell in ws[1]:
+            cell.font = Font(bold=True, color="FFFFFF")
+            cell.fill = PatternFill("solid", fgColor="245A73")
+            cell.alignment = Alignment(vertical="center", wrap_text=True)
+        for row_cells in ws.iter_rows(min_row=2):
+            for cell in row_cells:
+                cell.alignment = Alignment(vertical="center", wrap_text=True)
+        ws.auto_filter.ref = ws.dimensions
+    for ws, widths in ((cfg, [34, 100]), (stops_ws, [12, 42, 14, 16, 16]), (times_ws, [12, 30, 16]), (audit_ws, [12, 34, 38, 14, 18, 22, 22, 90])):
+        for col, width in enumerate(widths, 1):
+            ws.column_dimensions[get_column_letter(col)].width = width
+
+    regime_validation = DataValidation(type="list", formula1='"Dias úteis,Sábados,Domingos e feriados"', allow_blank=False)
+    times_ws.add_data_validation(regime_validation)
+    regime_validation.add(f"B2:B{times_ws.max_row}")
+
+    output = io.BytesIO()
+    wb.save(output)
+    output.seek(0)
+    report = {
+        "line": line,
+        "date": version_date,
+        "weekday_count": len(weekday_departures),
+        "saturday_count": len(saturday_departures),
+        "sunday_count": len(sunday_departures),
+        "stop_count": len(stop_rows),
+        "issues": unmatched,
+        "audit_valid": sum(1 for r in audit_rows if r[6] == "VALIDADO"),
+        "audit_pending": sum(1 for r in audit_rows if r[6] != "VALIDADO"),
+    }
+    return output.getvalue(), report
+
 
 # --- HELPER FUNCTIONS ---
 def str_to_time_delta(time_str: str) -> timedelta:
@@ -373,7 +788,7 @@ def format_timedelta(td: timedelta) -> str:
     return f"{hours:02d}:{minutes:02d}"
 
 def has_suspicious_departure_intervals(departures):
-    """Deteta listas provavelmente contaminadas com horas de passagem intermédias."""
+    """Bloqueia sequências com partidas consecutivas separadas por 0 ou 1 minuto."""
     parsed = []
     for value in departures:
         try:
@@ -382,19 +797,13 @@ def has_suspicious_departure_intervals(departures):
             continue
         if timedelta(0) <= td < timedelta(days=1):
             parsed.append(td)
-
     parsed = sorted(set(parsed))
-    if len(parsed) < 6:
+    if len(parsed) < 2:
         return False
-
-    gaps = [
-        int((current - previous).total_seconds() // 60)
+    return any(
+        (current - previous) <= timedelta(minutes=1)
         for previous, current in zip(parsed, parsed[1:])
-    ]
-    one_minute_gaps = sum(gap <= 1 for gap in gaps)
-    # Só bloqueia padrões claramente anómalos; não altera horários silenciosamente.
-    return one_minute_gaps >= 4 and one_minute_gaps / len(gaps) >= 0.30
-
+    )
 
 def calculate_next_trips(line_code, tipo_dia, orig_stop, dest_stop, ref_time_obj, n_results):
     stops_list = st.session_state["stops_c1"] if line_code == "C1" else st.session_state["stops_c2"]
@@ -524,7 +933,7 @@ def create_ics_calendar(line_code, orig_stop, dest_stop, trip_time_str, dest_tim
         end_dt += timedelta(days=1)
 
     summary = ics_escape(f"Autocarro MUV {line_code}: {orig_stop} -> {dest_stop}")
-    description_text = (f"Viagem de autocarro MUV Viseu da {line_code}." + chr(10)
+    description_text = (f"Viagem de autocarro MUV Viseu da {line_code}." + chr(10) 
                         + f"Partida: {trip_time_str}" + chr(10) + f"Chegada: {dest_time_str}")
     description = ics_escape(description_text)
     location = ics_escape(f"{orig_stop}, Viseu")
@@ -542,12 +951,11 @@ END:VEVENT
 END:VCALENDAR"""
     return ics_content.encode("utf-8")
 
-
 # --- USER INTERFACE ---
-st.title("🚌 MUViseu Circulares")
+st.title("🚌 MUViseu Circulares (v21 — correção controlada)")
 st.info(f"📅 **Versão dos Horários em Vigor:** {st.session_state.get('version_label', '1 de Março de 2026')} *(Fonte Oficial MUV)*")
 
-st.markdown("Aplicação interativa em Python e Streamlit com **Comparador Inteligente C1 vs C2**, **Gestor de Favoritos**, **mapa interativo Folium**, **PDF upload**, e **exportação .ICS/PDF/CSV**.")
+st.markdown("Aplicação interativa em Python e Streamlit com **Comparador Inteligente C1 vs C2**, **Gestor de Favoritos**, **mapa interativo Folium**, **importação Excel com validação de dados**, e **exportação .ICS/PDF/CSV**.")
 
 # Sidebar Settings
 st.sidebar.header("⚙️ Parâmetros da Viagem")
@@ -569,7 +977,6 @@ if modo_linha == "Linha C1":
 elif modo_linha == "Linha C2":
     available_stops = stops_c2_names
 else:
-    # Union of all stop names preserving order
     all_stops = list(dict.fromkeys(stops_c1_names + stops_c2_names))
     available_stops = all_stops
 
@@ -579,7 +986,6 @@ if "sel_origem" not in st.session_state:
 if "sel_destino" not in st.session_state:
     st.session_state["sel_destino"] = available_stops[min(13, len(available_stops)-1)]
 
-# Ensure selections are valid within available_stops
 if st.session_state["sel_origem"] not in available_stops:
     st.session_state["sel_origem"] = available_stops[0]
 if st.session_state["sel_destino"] not in available_stops:
@@ -588,7 +994,6 @@ if st.session_state["sel_destino"] not in available_stops:
 origem = st.sidebar.selectbox("Paragem de Origem", available_stops, format_func=format_stop_label, key="sel_origem")
 destino = st.sidebar.selectbox("Paragem de Destino", available_stops, format_func=format_stop_label, key="sel_destino")
 
-# Button to set current time
 if st.sidebar.button("⏱️ Usar Hora Atual"):
     st.session_state["time_input_val"] = datetime.now().time()
 
@@ -600,7 +1005,6 @@ n_horarios = st.sidebar.number_input("Número de próximos horários (N)", min_v
 st.sidebar.markdown("---")
 st.sidebar.header("⭐ Percursos Favoritos")
 
-# Quick add current route
 fav_label = f"{origem} ➔ {destino}"
 if st.sidebar.button("⭐ Guardar este Percurso nos Favoritos"):
     new_fav = {"origem": origem, "destino": destino, "modo": modo_linha}
@@ -633,15 +1037,38 @@ if st.session_state["favorites"]:
 else:
     st.sidebar.info("Nenhum percurso favorito guardado.")
 
-# PDF UPLOADER SECTION IN SIDEBAR
+# PDF -> EXCEL CONVERTER SECTION
 st.sidebar.markdown("---")
-st.sidebar.header("📂 Atualizar Dados por PDF")
-uploaded_pdf = st.sidebar.file_uploader("Carregar PDF de Horários", type=["pdf"])
+st.sidebar.header("📄 Converter PDF oficial para Excel")
+st.sidebar.caption("Extrai os horários dos quadros oficiais C1/C2 e prepara um Excel para revisão e importação.")
+uploaded_pdf_converter = st.sidebar.file_uploader("Carregar PDF oficial C1/C2", type=["pdf"], key="official_pdf_converter")
+if uploaded_pdf_converter is not None:
+    try:
+        excel_bytes, conversion_report = convert_official_pdf_to_excel(uploaded_pdf_converter)
+        st.sidebar.success(f"PDF identificado: {conversion_report['line']} — {conversion_report['date']}")
+        st.sidebar.write(f"Paragens: {conversion_report['stop_count']} | Dias úteis: {conversion_report['weekday_count']} | Sábados: {conversion_report['saturday_count']} | Domingos/feriados: {conversion_report['sunday_count']}")
+        if conversion_report["audit_pending"]:
+            st.sidebar.warning(f"Existem {conversion_report['audit_pending']} correspondências por validar. O Excel será gerado, mas a importação ficará bloqueada até corrigir a folha Conferência PDF e completar as coordenadas em falta.")
+        else:
+            st.sidebar.success("Todas as paragens foram correspondidas com a lista da aplicação.")
+        st.sidebar.download_button(
+            "⬇️ Descarregar Excel convertido",
+            data=excel_bytes,
+            file_name=f"MUViseu_{conversion_report['line']}_{conversion_report['date']}.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            key="download_converted_excel"
+        )
+    except Exception as conversion_error:
+        st.sidebar.error(f"Conversão bloqueada: {conversion_error}")
 
-if uploaded_pdf is not None:
-    line_parsed, new_stops, new_deps, pdf_date_obj, pdf_date_label = parse_pdf_schedules(uploaded_pdf)
-    target_line = line_parsed if line_parsed else ("C1" if modo_linha != "Linha C2" else "C2")
-    
+# EXCEL UPLOADER SECTION IN SIDEBAR
+st.sidebar.markdown("---")
+st.sidebar.header("📊 Atualizar Dados por Excel")
+st.sidebar.caption("Importe um ficheiro no modelo MUViseu. O PDF deve ser convertido e validado antes desta etapa.")
+uploaded_excel = st.sidebar.file_uploader("Carregar Excel de Horários", type=["xlsx"])
+
+if uploaded_excel is not None:
+    line_parsed, new_stops, new_departures, excel_date_obj, excel_errors = parse_excel_schedules(uploaded_excel)
     curr_date_str = st.session_state.get("version_date", DEFAULT_VERSION_DATE)
     try:
         cy, cm, cd = map(int, curr_date_str.split("-"))
@@ -649,48 +1076,38 @@ if uploaded_pdf is not None:
     except Exception:
         curr_date_obj = date(2026, 3, 1)
 
-    is_newer = pdf_date_obj is not None and pdf_date_obj > curr_date_obj
-    is_same = pdf_date_obj is not None and pdf_date_obj == curr_date_obj
-    is_older = pdf_date_obj is not None and pdf_date_obj < curr_date_obj
-    pdf_import_valid = pdf_date_obj is not None and bool(new_stops or new_deps)
+    is_older = excel_date_obj is not None and excel_date_obj < curr_date_obj
+    is_same = excel_date_obj is not None and excel_date_obj == curr_date_obj
+    excel_import_valid = not excel_errors and line_parsed in ("C1", "C2")
 
-    with st.sidebar.expander("🔍 Pré-visualização e Validação do PDF", expanded=True):
-        st.write(f"**Linha Identificada:** {target_line}")
-        st.write(f"**Data no PDF:** `{pdf_date_label or 'Não identificada'}`")
-        st.write(f"**Data em Vigor na App:** `{st.session_state['version_label']}`")
-        
-        if pdf_date_obj is None:
-            st.error("⛔ Não foi possível identificar uma data de entrada em vigor explícita. A importação foi bloqueada.")
-        elif not pdf_import_valid:
-            st.warning("⚠️ O PDF não contém uma estrutura de horários/paragens reconhecida com segurança. Nenhum dado será importado automaticamente.")
+    with st.sidebar.expander("🔍 Pré-visualização e Validação do Excel", expanded=True):
+        st.write(f"**Linha identificada:** {line_parsed or 'Inválida'}")
+        st.write(f"**Data de entrada em vigor:** `{excel_date_obj or 'Em falta'}`")
+        st.write(f"**Paragens validadas:** {len(new_stops)}")
+        st.write("**Regimes de horários:** " + (", ".join(new_departures.keys()) if new_departures else "Nenhum"))
+        if excel_errors:
+            for err in excel_errors:
+                st.error("⛔ " + err)
         elif is_older:
-            st.error(f"⛔ **PDF Desatualizado!** Os horários deste PDF ({pdf_date_label}) são anteriores à versão em vigor ({st.session_state['version_label']}).")
+            st.error("⛔ Este ficheiro é anterior à versão atualmente ativa.")
         elif is_same:
-            st.info(f"ℹ️ **Mesma Versão:** O PDF tem a mesma data da versão ativa ({pdf_date_label}).")
+            st.info("ℹ️ O ficheiro tem a mesma data da versão ativa.")
         else:
-            st.success(f"🚀 **PDF Mais Recente!** Esta versão ({pdf_date_label}) irá atualizar a app.")
+            st.success("✅ Estrutura e dados validados. Reveja antes de importar.")
 
-        st.write(f"**Paragens Detetadas:** {len(new_stops)}")
-        st.write(f"**Horários Detetados:** {len(new_deps)}")
-
-    if not pdf_import_valid or is_older:
-        st.sidebar.warning("⚠️ Importação automática bloqueada: dados insuficientes ou PDF desatualizado.")
+    if not excel_import_valid or is_older:
+        st.sidebar.warning("Importação bloqueada. Corrija os erros indicados ou utilize uma versão mais recente.")
     else:
-        if st.sidebar.button("✅ Confirmar e Importar PDF"):
-            if new_stops:
-                if target_line == "C1": st.session_state["stops_c1"] = new_stops
-                else: st.session_state["stops_c2"] = new_stops
-            if new_deps:
-                if tipo_dia == "Dias Úteis": st.session_state[f"dep_dias_{target_line.lower()}"] = new_deps
-                elif tipo_dia == "Sábados": st.session_state[f"dep_sab_{target_line.lower()}"] = new_deps
-                else: st.session_state[f"dep_dom_{target_line.lower()}"] = new_deps
-            
-            st.session_state["version_date"] = str(pdf_date_obj)
-            st.session_state["version_label"] = pdf_date_label
+        if st.sidebar.button("✅ Confirmar e Importar Excel"):
+            line_key = line_parsed.lower()
+            st.session_state[f"stops_{line_key}"] = new_stops
+            for suffix, values in new_departures.items():
+                st.session_state[f"{suffix}_{line_key}"] = values
+            st.session_state["version_date"] = str(excel_date_obj)
+            st.session_state["version_label"] = excel_date_obj.strftime("%d/%m/%Y")
             save_persisted_data()
-            st.sidebar.success(f"✅ Dados guardados! Versão ativa: {pdf_date_label}")
+            st.sidebar.success(f"Dados da linha {line_parsed} guardados.")
             st.rerun()
-
 
 if st.sidebar.button("🔄 Restaurar Dados Oficiais Padrão"):
     st.session_state["stops_c1"] = DEFAULT_STOPS_C1
@@ -709,7 +1126,6 @@ if st.sidebar.button("🔄 Restaurar Dados Oficiais Padrão"):
     st.sidebar.info("Dados restaurados para a versão oficial MUV mais recente em vigor: 1 de Março de 2026.")
     st.rerun()
 
-
 # Main Output Layout with Tabs
 tab_consultar, tab_mapa, tab_detalhes = st.tabs([
     "🔍 Consulta & Comparador", 
@@ -717,7 +1133,6 @@ tab_consultar, tab_mapa, tab_detalhes = st.tabs([
     "📱 Resumo Compacto / Mobile"
 ])
 
-# Sempre inicializadas: a vista mobile também é renderizada quando origem == destino.
 trips_c1, trips_c2 = [], []
 best_line = None
 
@@ -735,14 +1150,12 @@ with tab_consultar:
     if origem == destino:
         st.warning("⚠️ A paragem de origem e de destino são idênticas. Selecione paragens diferentes.")
     else:
-        # Check trips for C1 and C2
         trips_c1, valid_c1 = calculate_next_trips("C1", tipo_dia, origem, destino, horario_desejado, n_horarios)
         trips_c2, valid_c2 = calculate_next_trips("C2", tipo_dia, origem, destino, horario_desejado, n_horarios)
 
         if not valid_c1 or not valid_c2:
             st.warning(
-                "⚠️ Foram detetados dados de horários inválidos ou com intervalos anormalmente curtos "
-                "(possível mistura de partidas com horas de passagem nas paragens). "
+                "⚠️ Foram detetados dados de horários inválidos ou com intervalos anormalmente curtos. "
                 "Os resultados afetados foram bloqueados para evitar apresentar partidas falsas. "
                 "Verifique os horários guardados ou use «Restaurar Dados Oficiais Padrão» na barra lateral."
             )
@@ -756,7 +1169,6 @@ with tab_consultar:
                 best_line = None
                 time_saved = 0
                 
-                # Determine arrival times for comparison
                 arr_c1 = trips_c1[0]["Chegada TD"] if trips_c1 else None
                 arr_c2 = trips_c2[0]["Chegada TD"] if trips_c2 else None
                 
@@ -775,7 +1187,6 @@ with tab_consultar:
                 elif arr_c2:
                     best_line = "C2"
 
-                # Recommendation Banner
                 if best_line in ["C1", "C2"]:
                     rec_trip = trips_c1[0] if best_line == "C1" else trips_c2[0]
                     saved_msg = f" — chega {time_saved} minuto(s) mais cedo!" if time_saved > 0 else "!"
@@ -786,7 +1197,6 @@ with tab_consultar:
                 elif best_line == "Empate":
                     st.info("🤝 **EMPATE:** Ambas as linhas C1 e C2 chegam ao destino exatamente no mesmo horário!")
 
-                # Side by side view for C1 and C2
                 col_c1, col_c2 = st.columns(2)
 
                 with col_c1:
@@ -806,7 +1216,6 @@ with tab_consultar:
                         st.warning("Sem rotas na C2 para estas paragens.")
 
         else:
-            # Single Line Mode (C1 or C2)
             active_line = "C1" if modo_linha == "Linha C1" else "C2"
             trips = trips_c1 if active_line == "C1" else trips_c2
 
@@ -828,7 +1237,6 @@ with tab_consultar:
                 st.markdown(f"### 📋 Próximos {len(trips)} Horários - Linha {active_line}")
                 st.dataframe(df_trips[["Partida da Origem", "Chegada ao Destino", "Tempo Restante", "Duração Estimada", "Saída Terminal"]], use_container_width=True)
 
-                # Export Section
                 st.markdown("#### 📥 Exportação de Resultados & Lembretes")
                 exp_col1, exp_col2, exp_col3 = st.columns(3)
 
@@ -868,7 +1276,6 @@ with tab_consultar:
 with tab_mapa:
     st.subheader("🗺️ Mapa do Percurso Urbano")
     
-    # Build master map of all stop names -> (lat, lon)
     all_stops_dict = {}
     for s_name, s_off, s_lat, s_lon in st.session_state["stops_c1"] + st.session_state["stops_c2"]:
         all_stops_dict[s_name] = (s_lat, s_lon)
@@ -884,7 +1291,6 @@ with tab_mapa:
     c2_has_orig = origem in stops_c2_names
     c2_has_dest = destino in stops_c2_names
 
-    # Automatic selection of default line for map
     if c1_has_orig and c1_has_dest and not (c2_has_orig and c2_has_dest):
         auto_line = "C1"
     elif c2_has_orig and c2_has_dest and not (c1_has_orig and c1_has_dest):
@@ -949,25 +1355,20 @@ with tab_mapa:
     map_stops = st.session_state["stops_c1"] if target_map_line == "C1" else st.session_state["stops_c2"]
     stop_names_list = [s[0] for s in map_stops]
     
-    # Detect if Origem and Destino have identical or near-identical coordinates (< 15 meters)
     is_overlapping = False
     if orig_raw_coords and dest_raw_coords and origem != destino:
-        lat_diff = abs(orig_raw_coords[0] - dest_raw_coords[0])
-        lon_diff = abs(orig_raw_coords[1] - dest_raw_coords[1])
-        if lat_diff < 0.0025 and lon_diff < 0.0025:
-            is_overlapping = True
+        # Distância aproximada em metros (equiretangular), adequada para este raio urbano.
+        mean_lat = (orig_raw_coords[0] + dest_raw_coords[0]) / 2
+        north_m = (orig_raw_coords[0] - dest_raw_coords[0]) * 111_320
+        east_m = (orig_raw_coords[1] - dest_raw_coords[1]) * 111_320 * __import__("math").cos(__import__("math").radians(mean_lat))
+        is_overlapping = (north_m ** 2 + east_m ** 2) ** 0.5 < 250
 
-    if is_overlapping and orig_raw_coords and dest_raw_coords:
-        orig_display_lat = orig_raw_coords[0] - 0.0007
-        orig_display_lon = orig_raw_coords[1] - 0.0007
-        dest_display_lat = dest_raw_coords[0] + 0.0007
-        dest_display_lon = dest_raw_coords[1] + 0.0007
-        st.info(f"🟢 **Origem ({origem})** e 🔴 **Destino ({destino})** com separação visual aplicada no mapa para exibição dos dois marcadores lado a lado.")
-    else:
-        orig_display_lat, orig_display_lon = orig_raw_coords if orig_raw_coords else (40.6600, -7.9120)
-        dest_display_lat, dest_display_lon = dest_raw_coords if dest_raw_coords else (40.6600, -7.9120)
+    # Os marcadores permanecem nas coordenadas reais; não deslocar pins para fora da rota.
+    orig_display_lat, orig_display_lon = orig_raw_coords if orig_raw_coords else (40.6600, -7.9120)
+    dest_display_lat, dest_display_lon = dest_raw_coords if dest_raw_coords else (40.6600, -7.9120)
+    if is_overlapping:
+        st.info(f"🟢 **Origem ({origem})** e 🔴 **Destino ({destino})** estão a menos de 250 m. Os marcadores mantêm as coordenadas reais.")
 
-    # Initialize Folium Map
     m = folium.Map(
         location=[40.6600, -7.9120], 
         zoom_start=14, 
@@ -975,7 +1376,6 @@ with tab_mapa:
         attr=tile_attr
     )
 
-    # Collect points to auto-fit map bounds
     fit_points = [[s[2], s[3]] for s in map_stops]
     if orig_raw_coords: fit_points.append([orig_raw_coords[0], orig_raw_coords[1]])
     if dest_raw_coords: fit_points.append([dest_raw_coords[0], dest_raw_coords[1]])
@@ -985,7 +1385,6 @@ with tab_mapa:
     if lats and lons:
         m.fit_bounds([[min(lats), min(lons)], [max(lats), max(lons)]], padding=(25, 25))
     
-    # 1. Full Line Circuit Path (Solid Blue)
     full_path_coords = [[s[2], s[3]] for s in map_stops]
     folium.PolyLine(
         full_path_coords,
@@ -995,7 +1394,6 @@ with tab_mapa:
         tooltip=f"Circuito Completo da Linha {target_map_line}"
     ).add_to(m)
 
-    # 2. Highlighted Travel Segment (Origem -> Destino) in bold RED
     has_orig = origem in stop_names_list
     has_dest = destino in stop_names_list
 
@@ -1040,7 +1438,6 @@ with tab_mapa:
             tooltip=f"Ligação de Proximidade: {origem} / {destino}"
         ).add_to(m)
 
-    # 3. Render Intermediate Stop Markers
     for s_name, s_off, s_lat, s_lon in map_stops:
         if s_name != origem and s_name != destino:
             ref_text = PONTOS_REFERENCIA.get(s_name, "")
@@ -1057,7 +1454,6 @@ with tab_mapa:
                 tooltip=f"🚌 Paragem: {s_name}"
             ).add_to(m)
 
-    # 4. Render ORIGEM (Green) and DESTINO (Red) Markers explicitly
     if orig_raw_coords:
         ref_text = PONTOS_REFERENCIA.get(origem, "")
         ref_label = f"<br><small>{ref_text}</small>" if ref_text else ""
@@ -1087,7 +1483,6 @@ with tab_mapa:
     st_html(m.get_root().render(), height=540)
     st.caption("🟢 Verde: Paragem de Origem | 🔴 Vermelho: Paragem de Destino | ➖🔴 Linha Vermelha: Percurso Selecionado | ➖🔵 Linha Azul: Circuito Completo")
 
-
 with tab_detalhes:
     st.subheader("📱 Visão Mobile Compacta")
     st.markdown("Visualização otimizada em cartões interativos para ecrãs de smartphone.")
@@ -1099,7 +1494,7 @@ with tab_detalhes:
         active_line_name, active_trips = "C2", trips_c2
     else:
         active_line_name, active_trips = "C1", trips_c1
-    
+
     if origem != destino and active_trips:
         st.write(f"**Exibindo viagem na Linha {active_line_name}:**")
         for idx, trip in enumerate(active_trips, 1):
@@ -1111,4 +1506,4 @@ with tab_detalhes:
                 st.write(f"• **Partida do Terminal:** {trip['Saída Terminal']}")
 
 st.markdown("---")
-st.caption("MUViseu Circulares v19 - Sistema Inteligente de Horários & Mobilidade Urbana de Viseu.")
+st.caption("MUViseu Circulares v20 - Sistema Inteligente de Horários & Mobilidade Urbana de Viseu.")
