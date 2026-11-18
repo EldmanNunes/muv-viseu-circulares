@@ -949,6 +949,182 @@ END:VEVENT
 END:VCALENDAR"""
     return ics_content.encode("utf-8")
 
+
+
+# --- FULL SCHEDULE MATRIX & EXPORT HELPERS ---
+def build_full_matrix_dataframe(line_code, regime_name):
+    stops_list = st.session_state["stops_c1"] if line_code == "C1" else st.session_state["stops_c2"]
+    if line_code == "C1":
+        if regime_name == "Dias Úteis":
+            deps = st.session_state["dep_dias_c1"]
+        elif regime_name == "Sábados":
+            deps = st.session_state["dep_sab_c1"]
+        else:
+            deps = st.session_state["dep_dom_c1"]
+    else:
+        if regime_name == "Dias Úteis":
+            deps = st.session_state["dep_dias_c2"]
+        elif regime_name == "Sábados":
+            deps = st.session_state["dep_sab_c2"]
+        else:
+            deps = st.session_state["dep_dom_c2"]
+
+    matrix_rows = []
+    for idx, (s_name, s_off, s_lat, s_lon) in enumerate(stops_list, 1):
+        row = {
+            "Ordem": idx,
+            "Offset (min)": f"+{s_off} min",
+            "Paragem de Autocarro": s_name
+        }
+        for d in deps:
+            arr_td = str_to_time_delta(d) + timedelta(minutes=s_off)
+            row[f"Partida {d}"] = format_timedelta(arr_td)
+        matrix_rows.append(row)
+
+    return pd.DataFrame(matrix_rows), deps
+
+def generate_full_line_excel(line_code):
+    stops_list = st.session_state["stops_c1"] if line_code == "C1" else st.session_state["stops_c2"]
+    if line_code == "C1":
+        dep_dias = st.session_state["dep_dias_c1"]
+        dep_sab = st.session_state["dep_sab_c1"]
+        dep_dom = st.session_state["dep_dom_c1"]
+    else:
+        dep_dias = st.session_state["dep_dias_c2"]
+        dep_sab = st.session_state["dep_sab_c2"]
+        dep_dom = st.session_state["dep_dom_c2"]
+
+    wb = Workbook()
+    wb.remove(wb.active)
+
+    regimes_data = [
+        ("Dias Úteis", dep_dias),
+        ("Sábados", dep_sab),
+        ("Domingos e Feriados", dep_dom)
+    ]
+
+    for regime_title, deps in regimes_data:
+        ws = wb.create_sheet(title=regime_title)
+        header = ["Ordem", "Offset (min)", "Paragem de Autocarro"] + [f"Partida {d}" for d in deps]
+        ws.append(header)
+
+        for idx, (s_name, s_off, s_lat, s_lon) in enumerate(stops_list, 1):
+            row = [idx, f"+{s_off} min", s_name]
+            for d in deps:
+                arr_td = str_to_time_delta(d) + timedelta(minutes=s_off)
+                row.append(format_timedelta(arr_td))
+            ws.append(row)
+
+        ws.freeze_panes = "D2"
+        ws.row_dimensions[1].height = 26
+        for cell in ws[1]:
+            cell.font = Font(bold=True, color="FFFFFF")
+            cell.fill = PatternFill("solid", fgColor="1B4F72")
+            cell.alignment = Alignment(vertical="center", horizontal="center", wrap_text=True)
+
+        for row in ws.iter_rows(min_row=2):
+            for col_idx, cell in enumerate(row):
+                if col_idx < 3:
+                    cell.alignment = Alignment(vertical="center", horizontal="left" if col_idx == 2 else "center")
+                    cell.font = Font(bold=(col_idx == 2))
+                else:
+                    cell.alignment = Alignment(vertical="center", horizontal="center")
+
+        ws.column_dimensions["A"].width = 10
+        ws.column_dimensions["B"].width = 14
+        ws.column_dimensions["C"].width = 38
+        for c in range(4, len(deps) + 4):
+            ws.column_dimensions[get_column_letter(c)].width = 15
+
+    # Add Stops Sheet
+    ws_stops = wb.create_sheet(title="Paragens & Coordenadas")
+    ws_stops.append(["Linha", "Ordem", "Offset (min)", "Nome da Paragem", "Ponto de Referência", "Latitude", "Longitude"])
+    for idx, (s_name, s_off, s_lat, s_lon) in enumerate(stops_list, 1):
+        ref = PONTOS_REFERENCIA.get(s_name, "-")
+        ws_stops.append([line_code, idx, s_off, s_name, ref, s_lat, s_lon])
+
+    ws_stops.freeze_panes = "D2"
+    ws_stops.row_dimensions[1].height = 26
+    for cell in ws_stops[1]:
+        cell.font = Font(bold=True, color="FFFFFF")
+        cell.fill = PatternFill("solid", fgColor="245A73")
+        cell.alignment = Alignment(vertical="center", horizontal="center", wrap_text=True)
+
+    ws_stops.column_dimensions["A"].width = 10
+    ws_stops.column_dimensions["B"].width = 10
+    ws_stops.column_dimensions["C"].width = 14
+    ws_stops.column_dimensions["D"].width = 38
+    ws_stops.column_dimensions["E"].width = 45
+    ws_stops.column_dimensions["F"].width = 16
+    ws_stops.column_dimensions["G"].width = 16
+
+    for ws in wb.worksheets:
+        ws.auto_filter.ref = ws.dimensions
+
+    out = io.BytesIO()
+    wb.save(out)
+    out.seek(0)
+    return out.getvalue()
+
+def generate_full_pdf_matrix_report(line_code, regime_label):
+    stops_list = st.session_state["stops_c1"] if line_code == "C1" else st.session_state["stops_c2"]
+    if line_code == "C1":
+        if regime_label == "Dias Úteis":
+            deps = st.session_state["dep_dias_c1"]
+        elif regime_label == "Sábados":
+            deps = st.session_state["dep_sab_c1"]
+        else:
+            deps = st.session_state["dep_dom_c1"]
+    else:
+        if regime_label == "Dias Úteis":
+            deps = st.session_state["dep_dias_c2"]
+        elif regime_label == "Sábados":
+            deps = st.session_state["dep_sab_c2"]
+        else:
+            deps = st.session_state["dep_dom_c2"]
+
+    pdf = FPDF(orientation="L", unit="mm", format="A4")
+    pdf.add_page()
+    pdf.set_font("Helvetica", "B", 16)
+    pdf.cell(0, 10, f"MUV Viseu - Horarios Completos Linha {line_code}", align="C")
+    pdf.ln(10)
+    pdf.set_font("Helvetica", "", 11)
+    pdf.cell(0, 6, f"Regime: {regime_label} | Fonte Oficial MUV (Em vigor: {st.session_state.get('version_label', '1 de Março de 2026')})", align="C")
+    pdf.ln(8)
+
+    chunk_size = 9
+    dep_chunks = [deps[i:i + chunk_size] for i in range(0, len(deps), chunk_size)]
+
+    for chunk_idx, dep_chunk in enumerate(dep_chunks):
+        if chunk_idx > 0:
+            pdf.add_page()
+            pdf.set_font("Helvetica", "B", 14)
+            pdf.cell(0, 8, f"MUV Viseu - Horarios Linha {line_code} ({regime_label}) - Pagina {chunk_idx + 1}", align="C")
+            pdf.ln(6)
+
+        pdf.set_font("Helvetica", "B", 8)
+        pdf.cell(8, 7, "Ord", border=1, align="C")
+        pdf.cell(14, 7, "Offset", border=1, align="C")
+        pdf.cell(70, 7, "Paragem", border=1)
+
+        for dep in dep_chunk:
+            pdf.cell(19, 7, f"P {dep}", border=1, align="C")
+        pdf.ln()
+
+        pdf.set_font("Helvetica", "", 7.5)
+        for s_idx, (s_name, s_off, s_lat, s_lon) in enumerate(stops_list, 1):
+            pdf.cell(8, 5.5, str(s_idx), border=1, align="C")
+            pdf.cell(14, 5.5, f"+{s_off}m", border=1, align="C")
+            clean_name = s_name.encode("latin-1", "replace").decode("latin-1")
+            pdf.cell(70, 5.5, clean_name[:38], border=1)
+            for dep in dep_chunk:
+                arr_td = str_to_time_delta(dep) + timedelta(minutes=s_off)
+                pdf.cell(19, 5.5, format_timedelta(arr_td), border=1, align="C")
+            pdf.ln()
+
+    return bytes(pdf.output())
+
+
 # --- USER INTERFACE ---
 st.title("🚌 MUViseu Circulares (v20")
 st.info(f"📅 **Versão dos Horários em Vigor:** {st.session_state.get('version_label', '1 de Março de 2026')} *(Fonte Oficial MUV)*")
@@ -1110,8 +1286,9 @@ if uploaded_excel is not None:
 
 
 # Main Output Layout with Tabs
-tab_consultar, tab_mapa, tab_detalhes = st.tabs([
+tab_consultar, tab_matriz, tab_mapa, tab_detalhes = st.tabs([
     "🔍 Consulta & Comparador", 
+    "📊 Planilha Completa (C1/C2)", 
     "🗺️ Mapa do Percurso", 
     "📱 Resumo Compacto / Mobile"
 ])
@@ -1255,6 +1432,105 @@ with tab_consultar:
                         file_name=f"lembrete_autocarro_{active_line}.ics",
                         mime="text/calendar"
                     )
+
+
+with tab_matriz:
+    st.subheader("📊 Planilha Completa & Matriz de Horários")
+    st.markdown("Consulte e exporte a **grelha integral de partidas do terminal**, a **matriz de horários calculados para todas as paragens** e a **lista de coordenadas oficiais** para as **Linhas C1 e C2**.")
+
+    col_mat_l, col_mat_r = st.columns([1, 1])
+    with col_mat_l:
+        mat_line = st.selectbox(
+            "Linha a Consultar / Exportar",
+            ["Linha C1", "Linha C2"],
+            index=0 if modo_linha != "Linha C2" else 1,
+            key="sel_mat_line"
+        )
+    with col_mat_r:
+        mat_regime = st.selectbox(
+            "Regime de Funcionamento",
+            ["Dias Úteis", "Sábados", "Domingos e Feriados"],
+            index=0 if tipo_dia == "Dias Úteis" else (1 if tipo_dia == "Sábados" else 2),
+            key="sel_mat_regime"
+        )
+
+    target_line_code = "C1" if mat_line == "Linha C1" else "C2"
+
+    df_matrix, mat_deps = build_full_matrix_dataframe(target_line_code, mat_regime)
+    stops_active = st.session_state["stops_c1"] if target_line_code == "C1" else st.session_state["stops_c2"]
+
+    st.markdown(f"### 📋 Matriz de Horários — {mat_line} ({mat_regime})")
+    st.caption(f"Exibindo **{len(stops_active)} paragens** e **{len(mat_deps)} partidas** do terminal. Deslize a tabela horizontalmente para ver todos os horários do dia.")
+    
+    st.dataframe(df_matrix, use_container_width=True, height=440)
+
+    # Summary metrics for full matrix
+    col_m1, col_m2, col_m3, col_m4 = st.columns(4)
+    with col_m1:
+        st.metric("🚌 Total de Partidas Terminal", f"{len(mat_deps)} viagens")
+    with col_m2:
+        st.metric("🌅 Primeira Partida", mat_deps[0] if mat_deps else "-")
+    with col_m3:
+        st.metric("🌙 Última Partida", mat_deps[-1] if mat_deps else "-")
+    with col_m4:
+        st.metric("🛑 Total de Paragens no Circuito", f"{len(stops_active)} paragens")
+
+    st.markdown("---")
+    st.markdown(f"### 📥 Exportação da Planilha Completa — {mat_line}")
+    st.markdown("Descarregue a grelha integral com todos os horários e paragens no formato à sua escolha:")
+
+    exp_m1, exp_m2, exp_m3 = st.columns(3)
+
+    with exp_m1:
+        try:
+            excel_bytes = generate_full_line_excel(target_line_code)
+            st.download_button(
+                label=f"📊 Descarregar Planilha Excel Completa (.XLSX)",
+                data=excel_bytes,
+                file_name=f"matriz_completa_horarios_{target_line_code}_MUV.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                help="Inclui folhas separadas para Dias Úteis, Sábados, Domingos/Feriados e Coordenadas."
+            )
+        except Exception as exc:
+            st.error(f"Erro ao gerar Excel: {exc}")
+
+    with exp_m2:
+        csv_bytes = df_matrix.to_csv(index=False).encode("utf-8")
+        st.download_button(
+            label=f"📄 Descarregar Matriz CSV ({mat_regime})",
+            data=csv_bytes,
+            file_name=f"matriz_horarios_{target_line_code}_{mat_regime.replace(' ', '_')}.csv",
+            mime="text/csv",
+            help="Descarrega a matriz de horários do regime selecionado em formato CSV."
+        )
+
+    with exp_m3:
+        try:
+            pdf_bytes = generate_full_pdf_matrix_report(target_line_code, mat_regime)
+            st.download_button(
+                label=f"📕 Descarregar Relatório PDF Completo",
+                data=pdf_bytes,
+                file_name=f"relatorio_matriz_completa_{target_line_code}_{mat_regime.replace(' ', '_')}.pdf",
+                mime="application/pdf",
+                help="Gera relatório em PDF horizontal com a grelha completa de horários."
+            )
+        except Exception as exc:
+            st.error(f"Erro ao gerar PDF: {exc}")
+
+    with st.expander(f"📍 Ver Lista Completa de Paragens e Coordenadas ({mat_line})", expanded=False):
+        stops_table_data = []
+        for idx, (s_name, s_off, s_lat, s_lon) in enumerate(stops_active, 1):
+            stops_table_data.append({
+                "Ordem": idx,
+                "Offset": f"+{s_off} min",
+                "Nome da Paragem": s_name,
+                "Ponto de Referência": PONTOS_REFERENCIA.get(s_name, "-"),
+                "Latitude": s_lat,
+                "Longitude": s_lon
+            })
+        st.dataframe(pd.DataFrame(stops_table_data), use_container_width=True)
+
+
 
 with tab_mapa:
     st.subheader("🗺️ Mapa do Percurso Urbano")
